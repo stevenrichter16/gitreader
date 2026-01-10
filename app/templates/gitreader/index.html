@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GitReader Prototype</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='gitreader/styles.css') }}">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="brand">
+        <span class="brand-mark">GitReader</span>
+        <span class="brand-tagline">Read code like a novel</span>
+      </div>
+      <div class="nav-actions" role="group" aria-label="Layout modes">
+        <button class="nav-btn" data-layout="reader">Reader</button>
+        <button class="nav-btn" data-layout="canvas">Canvas</button>
+        <button class="nav-btn is-active" data-layout="both">Both</button>
+      </div>
+    </header>
+
+    <main class="workspace" id="workspace" data-layout="both">
+      <section class="pane toc-pane" id="toc" aria-label="Table of contents">
+        <div class="pane-header">
+          <h2>Table of Contents</h2>
+          <span class="pill">chapters</span>
+        </div>
+        <p class="pane-subtitle">Follow the story arc of the repository.</p>
+        <ul class="toc-list" id="toc-list"></ul>
+      </section>
+
+      <section class="pane code-pane" id="code-view" aria-label="Reader mode">
+        <div class="pane-header">
+          <h2>Reader</h2>
+          <span class="pill">progressive disclosure</span>
+        </div>
+        <div class="code-surface" id="code-surface"></div>
+      </section>
+
+      <section class="pane canvas-pane" id="graph-canvas" aria-label="Canvas mode">
+        <div class="pane-header">
+          <h2>Canvas</h2>
+          <div class="canvas-controls" role="group" aria-label="Layout controls">
+            <button class="ghost-btn" data-layout-action="cluster">Group by package</button>
+            <button class="ghost-btn" data-layout-action="layer">Stack by layer</button>
+          </div>
+        </div>
+        <div class="canvas-surface" id="canvas-surface">
+          <div class="canvas-grid" id="canvas-grid"></div>
+        </div>
+      </section>
+
+      <section class="pane narrator-pane" id="narrator" aria-label="Narrator">
+        <div class="pane-header">
+          <h2>Narrator</h2>
+          <div class="mode-buttons" id="mode-buttons" role="group" aria-label="Narration modes">
+            <button class="mode-btn is-active" data-mode="hook">Hook</button>
+            <button class="mode-btn" data-mode="summary">What it does</button>
+            <button class="mode-btn" data-mode="key_lines">Key lines</button>
+            <button class="mode-btn" data-mode="connections">Connections</button>
+            <button class="mode-btn" data-mode="next">Next thread</button>
+          </div>
+        </div>
+        <div class="narrator-output" id="narrator-output">
+          <p class="eyebrow">Scene</p>
+          <h3>Waiting for your selection</h3>
+          <p>Choose a chapter to begin the narrative.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="{{ url_for('static', filename='gitreader/app.js') }}" defer></script>
+</body>
+</html>
