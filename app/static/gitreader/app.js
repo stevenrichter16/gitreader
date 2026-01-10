@@ -1,177 +1,21 @@
 (function () {
     'use strict';
 
-    var chapters = [
-        {
-            id: '1a',
-            title: 'Hello, world',
-            summary: 'A minimal Flask app opens the story.',
-            focus: {
-                id: 'flasky.app',
-                name: 'app',
-                kind: 'file',
-                summary: 'Entry point that spins up the server.',
-                signature: 'app = Flask(__name__)',
-                body: "@app.route('/')\ndef index():\n    return 'Hello, world'\n\nif __name__ == '__main__':\n    app.run()",
-                location: 'flasky.py:1'
-            },
-            nodes: [
-                {
-                    id: 'flasky.py',
-                    name: 'flasky.py',
-                    kind: 'file',
-                    summary: 'Single-file application entry point.'
-                },
-                {
-                    id: 'index',
-                    name: 'index',
-                    kind: 'function',
-                    summary: 'Root route returning a greeting.'
-                }
-            ],
-            edges: [
-                {
-                    source: 'flasky.py',
-                    target: 'index',
-                    kind: 'contains',
-                    confidence: 'high'
-                }
-            ]
-        },
-        {
-            id: '2a',
-            title: 'A complete application',
-            summary: 'Factory patterns and blueprints step in.',
-            focus: {
-                id: 'app.create_app',
-                name: 'create_app',
-                kind: 'function',
-                summary: 'Builds the Flask app and wires extensions.',
-                signature: 'def create_app(config_name):',
-                body: 'app = Flask(__name__)\napp.config.from_object(config[config_name])\napp.register_blueprint(main_blueprint)',
-                location: 'app/__init__.py:17'
-            },
-            nodes: [
-                {
-                    id: 'app.__init__',
-                    name: 'app/__init__.py',
-                    kind: 'file',
-                    summary: 'Application factory and extension setup.'
-                },
-                {
-                    id: 'main.blueprint',
-                    name: 'main',
-                    kind: 'class',
-                    summary: 'Blueprint for main routes.'
-                },
-                {
-                    id: 'config.Config',
-                    name: 'Config',
-                    kind: 'class',
-                    summary: 'Base configuration values.'
-                }
-            ],
-            edges: [
-                {
-                    source: 'app.__init__',
-                    target: 'main.blueprint',
-                    kind: 'imports',
-                    confidence: 'high'
-                },
-                {
-                    source: 'app.__init__',
-                    target: 'config.Config',
-                    kind: 'imports',
-                    confidence: 'medium'
-                }
-            ]
-        },
-        {
-            id: '2b',
-            title: 'Dynamic routes',
-            summary: 'Parameters flow through the URL.',
-            focus: {
-                id: 'main.user',
-                name: 'user',
-                kind: 'function',
-                summary: 'Reads a name parameter and renders a greeting.',
-                signature: "@main.route('/user/<name>')",
-                body: "def user(name):\n    return render_template('user.html', name=name)",
-                location: 'app/main/views.py:9'
-            },
-            nodes: [
-                {
-                    id: 'main.views',
-                    name: 'main/views.py',
-                    kind: 'file',
-                    summary: 'Routes for the main blueprint.'
-                },
-                {
-                    id: 'main.user',
-                    name: 'user',
-                    kind: 'function',
-                    summary: 'Dynamic route with a name parameter.'
-                },
-                {
-                    id: 'template.user',
-                    name: 'user.html',
-                    kind: 'file',
-                    summary: 'Template that renders a greeting.'
-                }
-            ],
-            edges: [
-                {
-                    source: 'main.user',
-                    target: 'template.user',
-                    kind: 'calls',
-                    confidence: 'medium'
-                }
-            ]
-        },
-        {
-            id: '3a',
-            title: 'Templates',
-            summary: 'Views hand data to Jinja templates.',
-            focus: {
-                id: 'main.index',
-                name: 'index',
-                kind: 'function',
-                summary: 'Renders the index template with data.',
-                signature: 'def index():',
-                body: "return render_template('index.html', name='Stranger')",
-                location: 'app/main/views.py:3'
-            },
-            nodes: [
-                {
-                    id: 'template.base',
-                    name: 'base.html',
-                    kind: 'file',
-                    summary: 'Defines the base layout and blocks.'
-                },
-                {
-                    id: 'template.index',
-                    name: 'index.html',
-                    kind: 'file',
-                    summary: 'Extends the base template.'
-                }
-            ],
-            edges: [
-                {
-                    source: 'template.index',
-                    target: 'template.base',
-                    kind: 'inherits',
-                    confidence: 'high'
-                }
-            ]
-        }
-    ];
-
     function getElement(id) {
         var element = document.getElementById(id);
         if (!element) {
             throw new Error('Missing element: ' + id);
         }
         return element;
+    }
+
+    function escapeHtml(value) {
+        return value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     function GitReaderApp() {
@@ -183,14 +27,66 @@
         this.layoutButtons = document.querySelectorAll('.nav-btn');
         this.workspace = getElement('workspace');
         this.currentMode = 'hook';
+        this.chapters = [];
+        this.graphNodes = [];
+        this.graphEdges = [];
+        this.nodeById = new Map();
+        this.snippetCache = new Map();
     }
 
     GitReaderApp.prototype.init = function () {
-        this.renderToc();
+        var _this = this;
+        this.renderLoadingState();
         this.bindEvents();
-        if (chapters.length > 0) {
-            this.loadChapter(chapters[0].id);
-        }
+        this.loadData().catch(function (error) {
+            var message = error instanceof Error ? error.message : 'Failed to load data.';
+            _this.renderErrorState(message);
+        });
+    };
+
+    GitReaderApp.prototype.loadData = function () {
+        var _this = this;
+        return Promise.all([
+            this.fetchJson('/gitreader/api/toc'),
+            this.fetchJson('/gitreader/api/graph')
+        ]).then(function (responses) {
+            var tocData = responses[0];
+            var graphData = responses[1];
+            _this.chapters = Array.isArray(tocData.chapters) ? tocData.chapters : [];
+            _this.graphNodes = Array.isArray(graphData.nodes) ? graphData.nodes : [];
+            _this.graphEdges = Array.isArray(graphData.edges) ? graphData.edges : [];
+            _this.nodeById = new Map(_this.graphNodes.map(function (node) { return [node.id, node]; }));
+            _this.renderToc();
+            var defaultChapterId = _this.chapters.length > 0 ? _this.chapters[0].id : '';
+            _this.loadChapter(defaultChapterId);
+        });
+    };
+
+    GitReaderApp.prototype.fetchJson = function (url) {
+        return fetch(url, {
+            headers: {
+                Accept: 'application/json'
+            }
+        }).then(function (response) {
+            if (!response.ok) {
+                throw new Error('Request failed: ' + response.status);
+            }
+            return response.json();
+        });
+    };
+
+    GitReaderApp.prototype.renderLoadingState = function () {
+        this.tocList.innerHTML = '<li class="toc-item"><div class="toc-title">Loading chapters</div><p class="toc-summary">Scanning repository...</p></li>';
+        this.codeSurface.innerHTML = '<article class="code-card"><h3>Loading symbols...</h3><p>Fetching graph data.</p></article>';
+        this.canvasGrid.innerHTML = '<div class="canvas-node"><h4>Loading graph</h4><p>Preparing nodes and edges.</p></div>';
+        this.narratorOutput.innerHTML = '<p class="eyebrow">Narrator</p><h3>Loading</h3><p>Gathering the first clues.</p>';
+    };
+
+    GitReaderApp.prototype.renderErrorState = function (message) {
+        this.tocList.innerHTML = '<li class="toc-item"><div class="toc-title">Failed to load</div><p class="toc-summary">' + escapeHtml(message) + '</p></li>';
+        this.codeSurface.innerHTML = '<article class="code-card"><h3>Unable to load</h3><p>' + escapeHtml(message) + '</p></article>';
+        this.canvasGrid.innerHTML = '<div class="canvas-node"><h4>No graph</h4><p>' + escapeHtml(message) + '</p></div>';
+        this.narratorOutput.innerHTML = '<p class="eyebrow">Narrator</p><h3>Paused</h3><p>' + escapeHtml(message) + '</p>';
     };
 
     GitReaderApp.prototype.bindEvents = function () {
@@ -203,6 +99,24 @@
             var chapterId = target.dataset.chapterId;
             if (chapterId) {
                 _this.loadChapter(chapterId);
+            }
+        });
+
+        this.canvasGrid.addEventListener('click', function (event) {
+            var target = event.target.closest('.canvas-node');
+            if (!target) {
+                return;
+            }
+            var nodeId = target.dataset.nodeId;
+            if (!nodeId) {
+                return;
+            }
+            var node = _this.nodeById.get(nodeId);
+            if (node) {
+                _this.loadSymbolSnippet(node).catch(function () {
+                    _this.renderCode(node);
+                    _this.updateNarrator(node);
+                });
             }
         });
 
@@ -228,26 +142,103 @@
     GitReaderApp.prototype.renderToc = function () {
         var _this = this;
         this.tocList.innerHTML = '';
-        chapters.forEach(function (chapter) {
+        if (this.chapters.length === 0) {
+            this.tocList.innerHTML = '<li class="toc-item"><div class="toc-title">No chapters yet</div><p class="toc-summary">Scan another repository.</p></li>';
+            return;
+        }
+        this.chapters.forEach(function (chapter) {
             var item = document.createElement('li');
             item.className = 'toc-item';
             item.dataset.chapterId = chapter.id;
             item.innerHTML =
-                '<div class="toc-title">' + chapter.title + '</div>' +
-                '<p class="toc-summary">' + chapter.summary + '</p>';
+                '<div class="toc-title">' + escapeHtml(chapter.title) + '</div>' +
+                '<p class="toc-summary">' + escapeHtml(chapter.summary) + '</p>';
             _this.tocList.appendChild(item);
         });
     };
 
     GitReaderApp.prototype.loadChapter = function (chapterId) {
-        var chapter = chapters.find(function (item) { return item.id === chapterId; });
-        if (!chapter) {
-            return;
-        }
+        var _this = this;
         this.setActiveToc(chapterId);
-        this.renderCode(chapter.focus);
-        this.renderGraph(chapter.nodes, chapter.edges);
-        this.updateNarrator(chapter.focus);
+        var nodes = this.filterNodesForChapter(chapterId);
+        var edges = this.filterEdgesForNodes(nodes);
+        var focus = this.pickFocusNode(nodes);
+        this.renderGraph(nodes, edges);
+        this.loadSymbolSnippet(focus).catch(function () {
+            _this.renderCode(focus);
+            _this.updateNarrator(focus);
+        });
+    };
+
+    GitReaderApp.prototype.loadSymbolSnippet = function (symbol) {
+        var _this = this;
+        if (!symbol.id) {
+            this.renderCode(symbol);
+            this.updateNarrator(symbol);
+            return Promise.resolve();
+        }
+        var cached = this.snippetCache.get(symbol.id);
+        if (cached) {
+            this.renderCode(symbol, cached);
+            this.updateNarrator(symbol);
+            return Promise.resolve();
+        }
+        return this.fetchJson('/gitreader/api/symbol?id=' + encodeURIComponent(symbol.id))
+            .then(function (response) {
+                _this.snippetCache.set(symbol.id, response);
+                _this.renderCode(symbol, response);
+                _this.updateNarrator(symbol);
+            });
+    };
+
+    GitReaderApp.prototype.filterNodesForChapter = function (chapterId) {
+        if (!chapterId || chapterId.indexOf('group:') !== 0) {
+            return this.graphNodes;
+        }
+        var group = chapterId.slice('group:'.length);
+        var filtered = this.graphNodes.filter(function (node) {
+            var path = node.location && node.location.path ? node.location.path : null;
+            if (!path) {
+                return false;
+            }
+            var normalized = path.replace(/\\/g, '/');
+            if (group === 'root') {
+                return normalized.indexOf('/') === -1;
+            }
+            return normalized.indexOf(group + '/') === 0;
+        });
+        return filtered.length > 0 ? filtered : this.graphNodes;
+    };
+
+    GitReaderApp.prototype.filterEdgesForNodes = function (nodes) {
+        var allowed = new Set(nodes.map(function (node) { return node.id; }));
+        return this.graphEdges.filter(function (edge) {
+            return allowed.has(edge.source) && allowed.has(edge.target);
+        });
+    };
+
+    GitReaderApp.prototype.pickFocusNode = function (nodes) {
+        if (nodes.length === 0) {
+            return this.fallbackSymbol();
+        }
+        var priority = ['function', 'method', 'class', 'file', 'blueprint', 'external'];
+        for (var i = 0; i < priority.length; i++) {
+            var kind = priority[i];
+            var match = nodes.find(function (node) { return node.kind === kind; });
+            if (match) {
+                return match;
+            }
+        }
+        return nodes[0];
+    };
+
+    GitReaderApp.prototype.fallbackSymbol = function () {
+        return {
+            id: 'fallback',
+            name: 'Repository',
+            kind: 'file',
+            summary: 'Select a chapter to explore symbols.'
+        };
     };
 
     GitReaderApp.prototype.setActiveToc = function (chapterId) {
@@ -258,21 +249,43 @@
         });
     };
 
-    GitReaderApp.prototype.renderCode = function (symbol) {
+    GitReaderApp.prototype.formatLocation = function (location, startLine, endLine) {
+        if (!location || !location.path) {
+            return 'location unknown';
+        }
+        if (startLine && startLine > 0) {
+            var endLabel = endLine && endLine !== startLine ? '-' + endLine : '';
+            return '' + location.path + ':' + startLine + endLabel;
+        }
+        if (location.start_line) {
+            var fallbackEnd = location.end_line && location.end_line !== location.start_line
+                ? '-' + location.end_line
+                : '';
+            return '' + location.path + ':' + location.start_line + fallbackEnd;
+        }
+        return location.path;
+    };
+
+    GitReaderApp.prototype.renderCode = function (symbol, snippet) {
+        var summary = (snippet && snippet.summary) || symbol.summary || 'No summary yet.';
+        var signature = (snippet && snippet.signature) || symbol.signature || 'signature pending';
+        var locationLabel = this.formatLocation(symbol.location, snippet && snippet.start_line, snippet && snippet.end_line);
+        var body = (snippet && snippet.snippet) || '# body not loaded yet';
+        var truncationLabel = snippet && snippet.truncated ? ' (truncated)' : '';
         this.codeSurface.innerHTML =
             '<article class="code-card">' +
             '<div class="code-meta">' +
-            '<span>' + symbol.kind.toUpperCase() + '</span>' +
-            '<span>' + (symbol.location || 'location unknown') + '</span>' +
+            '<span>' + escapeHtml(symbol.kind.toUpperCase()) + '</span>' +
+            '<span>' + escapeHtml(locationLabel) + escapeHtml(truncationLabel) + '</span>' +
             '</div>' +
             '<div>' +
-            '<h3>' + symbol.name + '</h3>' +
-            '<p>' + symbol.summary + '</p>' +
+            '<h3>' + escapeHtml(symbol.name) + '</h3>' +
+            '<p>' + escapeHtml(summary) + '</p>' +
             '</div>' +
-            '<div class="code-signature">' + (symbol.signature || 'signature pending') + '</div>' +
-            '<details class="code-details">' +
+            '<div class="code-signature">' + escapeHtml(signature) + '</div>' +
+            '<details class="code-details" open>' +
             '<summary>Reveal body</summary>' +
-            '<pre>' + (symbol.body || '# body not loaded yet') + '</pre>' +
+            '<pre>' + escapeHtml(body) + '</pre>' +
             '</details>' +
             '</article>';
     };
@@ -280,20 +293,28 @@
     GitReaderApp.prototype.renderGraph = function (nodes, edges) {
         var _this = this;
         this.canvasGrid.innerHTML = '';
+        if (nodes.length === 0) {
+            var empty = document.createElement('div');
+            empty.className = 'canvas-node';
+            empty.innerHTML = '<h4>No nodes yet</h4><p>Graph data has not loaded.</p>';
+            this.canvasGrid.appendChild(empty);
+            return;
+        }
         nodes.forEach(function (node) {
             var nodeEl = document.createElement('div');
             nodeEl.className = 'canvas-node';
+            nodeEl.dataset.nodeId = node.id;
             nodeEl.innerHTML =
-                '<h4>' + node.name + '</h4>' +
-                '<p>' + node.kind + ' - ' + node.summary + '</p>';
+                '<h4>' + escapeHtml(node.name) + '</h4>' +
+                '<p>' + escapeHtml(node.kind) + ' - ' + escapeHtml(node.summary || 'No summary') + '</p>';
             _this.canvasGrid.appendChild(nodeEl);
         });
 
         if (edges.length === 0) {
-            var empty = document.createElement('div');
-            empty.className = 'canvas-node';
-            empty.innerHTML = '<h4>No edges yet</h4><p>Add relationships to reveal the map.</p>';
-            this.canvasGrid.appendChild(empty);
+            var emptyEdge = document.createElement('div');
+            emptyEdge.className = 'canvas-node';
+            emptyEdge.innerHTML = '<h4>No edges yet</h4><p>Add relationships to reveal the map.</p>';
+            this.canvasGrid.appendChild(emptyEdge);
         }
     };
 
@@ -365,10 +386,10 @@
         this.modeButtons.forEach(function (button) {
             button.classList.toggle('is-active', button.dataset.mode === mode);
         });
-        var activeChapter = this.getActiveChapter();
-        if (activeChapter) {
-            this.updateNarrator(activeChapter.focus);
-        }
+        var chapterId = this.getActiveChapterId();
+        var nodes = this.filterNodesForChapter(chapterId || '');
+        var focus = this.pickFocusNode(nodes);
+        this.updateNarrator(focus);
     };
 
     GitReaderApp.prototype.setLayout = function (layout) {
@@ -378,13 +399,12 @@
         });
     };
 
-    GitReaderApp.prototype.getActiveChapter = function () {
+    GitReaderApp.prototype.getActiveChapterId = function () {
         var active = this.tocList.querySelector('.toc-item.is-active');
         if (!active) {
-            return undefined;
+            return null;
         }
-        var chapterId = active.dataset.chapterId;
-        return chapters.find(function (item) { return item.id === chapterId; });
+        return active.dataset.chapterId || null;
     };
 
     document.addEventListener('DOMContentLoaded', function () {

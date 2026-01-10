@@ -46,6 +46,38 @@ For GitReader to work with any GitHub repo, a server component must perform the 
 
 Although the prototype uses Flasky as an example and implements parsing only for Python, the architecture supports other languages by writing language-specific analyzers that produce the same SymbolNode and GraphEdge structures. Tools like tree-sitter or multi-language LSPs can provide uniform parsing across languages. By keeping the front-end generic and the backend modular, GitReader can eventually browse JavaScript, TypeScript, Java, Go, or C++ repositories.
 
+## Narrative UX additions
+
+These features reinforce the story-like pacing and ensure the narrator feels intentional instead of generic.
+
+- Authoring layer - Provide a lightweight editor to reorder chapters, annotate arcs, and insert human-written beats.
+- Pacing controls - Support reveal timing, chapter length targets, and cliffhanger prompts that guide the reader forward.
+- Reader personalization - Adjust depth and tone by skill level, curiosity tags, or prior reading history.
+- Engagement signals - Track where readers pause, skip, or abandon chapters to refine heuristics.
+- Narrator style guide - Define voice, structure, and guardrails so the commentary stays coherent across the repo.
+- Narrative metrics - Track completion rate, average dwell time, and chapter-to-chapter retention.
+
+## Story construction without commit history
+
+GitReader should not assume commit history reflects a narrative arc. The story is derived from the code alone.
+
+- TOC heuristics - Build chapters from code structure (entry points, packages, top-level modules, cross-cutting concerns).
+- Dependency-first ordering - Prioritize entry points, configuration, and framework wiring before leaf modules.
+- Hotspot detection - Use symbols with high fan-in or fan-out as plot pivots.
+- Feature arcs - Cluster symbols by shared templates, routes, or API endpoints instead of commits.
+- Author overrides - Allow curated chapter order that can ignore or replace heuristics.
+
+## Messy repos hardening
+
+Real-world repositories are inconsistent. The pipeline must stay resilient and give partial results.
+
+- Ingestion limits - Shallow clone, optional subdir scan, cap file size, skip binaries and vendor folders.
+- Encoding tolerance - Detect encodings with fallback to UTF-8 replacement, store lossy warnings.
+- Parse resilience - Per-file try/except, collect errors, continue building the graph.
+- Mixed languages - Parse supported files, treat others as opaque nodes for context.
+- Heuristic resolution - Accept unresolved calls/imports and mark edges with low confidence.
+- Performance guardrails - Timeouts per file, max file count per repo, incremental parsing and caching.
+
 ## Next steps
 
 1. Static analysis module - Implement AST parsing and graph construction for Python as described above. Provide endpoints for the front-end to request the TOC and symbol graphs.
@@ -53,6 +85,108 @@ Although the prototype uses Flasky as an example and implements parsing only for
 3. Syntax highlighting - Use a library like highlight.js or Prism.js in the reader pane to render code nicely.
 4. LLM integration - Develop a service wrapper around the LLM API. Define prompts that enforce citation and narrative structure. Implement caching and rate limiting.
 5. Auth and GitHub integration - Allow users to authenticate with GitHub and select repositories. Use GitHub's API to fetch file contents and commit metadata instead of cloning when possible.
+
+## Phase 1: Core backend pipeline - detailed implementation plan
+
+### Scope and outcomes
+
+- Scope - Python parsing only, single repository and revision at a time, local clone or URL, no auth yet. Narrative is derived from code structure, not commit history.
+- Outputs - A SymbolNode and GraphEdge set stored in memory and serialized to JSON for reuse, plus parse warnings and confidence levels.
+- Success criteria - TOC, graph, and symbol lookups work for Flasky and return partial results for messy repos without crashing.
+
+### Step-by-step build plan
+
+1. Define the domain models
+   - Create a small schema module with dataclasses or TypedDicts for `SymbolNode`, `GraphEdge`, `FileNode`, and `RepoIndex`.
+   - Decide on stable IDs and naming: `file:app/__init__.py`, `symbol:app.__init__.create_app`.
+   - Standardize location fields: `path`, `start_line`, `end_line`, `column`.
+
+2. Implement repository ingestion
+   - Accept `repo_url`, `ref`, and optional `subdir` in a new `RepoSpec`.
+   - Use `git` CLI for clone and checkout to avoid new dependencies, but do not rely on history for ordering.
+   - Prefer shallow clone and optional sparse checkout for large repos.
+   - Cache clones under a repo root (for example `instance/gitreader/repos/<slug>`).
+   - Record current commit SHA in the `RepoIndex` for caching and invalidation.
+
+3. Detect languages and select parsers
+   - Walk the repo tree while skipping `node_modules`, `.git`, `venv`, `__pycache__`, `dist`, and `build`.
+   - Skip binary files and cap file size to avoid memory pressure.
+   - Collect extension counts and select the parser set for the repo.
+   - For phase 1, only parse `.py` and report others as unsupported.
+
+4. Parse Python files into ASTs
+   - Map file paths to module paths (for example `app/main/views.py` -> `app.main.views`).
+   - Parse with `ast.parse`, collecting syntax errors but continuing the scan.
+   - Read files with encoding fallbacks and record lossy decoding warnings.
+   - Store raw file content for later line slicing and snippets.
+
+5. Build the symbol table
+   - Create nodes for `Module`, `ClassDef`, `FunctionDef`, and `AsyncFunctionDef`.
+   - Attach docstrings, signatures (best-effort), and location data.
+   - Add `contains` edges from file nodes to symbol nodes.
+   - Record per-file parse failures without aborting the repo scan.
+
+6. Resolve imports
+   - Extract `import` and `from ... import ...` statements for each module.
+   - Build an alias map: `alias -> module.path` or `module.path.symbol`.
+   - Link imported local modules to file nodes when possible.
+
+7. Extract call graph edges
+   - Walk `ast.Call` nodes inside functions and methods.
+   - Resolve `ast.Name` calls against local symbols or import aliases.
+   - Resolve `ast.Attribute` calls with heuristics:
+     - `self.method()` -> method on enclosing class (medium confidence).
+     - `module.func()` -> imported module symbol (high confidence).
+     - `obj.attr()` unresolved -> external placeholder (low confidence).
+   - Record unresolved calls as external nodes under an `external:` namespace.
+   - Store confidence on each edge to surface uncertainty in the UI.
+
+8. Add inheritance and framework heuristics
+   - For each class, resolve bases to local or imported symbols.
+   - Detect `Blueprint()` calls and create blueprint nodes.
+   - Detect `register_blueprint()` and connect to blueprint nodes.
+
+9. Assemble the graph index
+   - Build `RepoIndex` with nodes, edges, and lookup maps:
+     - by id, by file path, by kind, by module path.
+   - Generate a TOC from code structure and dependencies, not commit history.
+   - Seed chapter order with entry points, configuration, and high fan-in symbols.
+
+10. Serialize and cache results
+   - Persist `RepoIndex` to `instance/gitreader/index/<repo_id>.json`.
+    - Add a checksum of file mtimes or commit SHA for cache validation.
+    - Persist parse warnings and lossy decoding flags alongside the graph.
+
+11. Wire up backend endpoints
+    - Replace stub responses in `app/gitreader/routes.py` with real data:
+      - `/api/toc` -> list of chapters from `RepoIndex`.
+      - `/api/graph` -> nodes and edges for the selected scope.
+      - `/api/narrate` -> placeholder until LLM integration.
+    - Add query params for `repo`, `ref`, and optional `path` scope.
+
+12. Add observability and error handling
+    - Collect parse errors with file path and line info.
+    - Track decoding warnings, skipped files, and binary exclusions.
+    - Log ingestion durations and counts: files, nodes, edges.
+    - Return structured error payloads from the API.
+
+### Module layout suggestion
+
+- `app/gitreader/models.py` - node and edge schemas, RepoSpec, RepoIndex.
+- `app/gitreader/ingest.py` - clone and checkout, repo caching.
+- `app/gitreader/scan.py` - filesystem walk and language detection.
+- `app/gitreader/parse_python.py` - AST parsing and symbol extraction.
+- `app/gitreader/graph.py` - edges, resolution, and graph assembly.
+- `app/gitreader/storage.py` - JSON serialization and cache lookup.
+- `app/gitreader/service.py` - orchestration entry point for routes.
+
+### Validation and tests
+
+- Unit tests for module path resolution and import alias handling.
+- Unit tests for call resolution on `Name` and `Attribute` patterns.
+- Integration test on Flasky: ensure `create_app` and `main` nodes exist.
+- Integration test on a repo with syntax errors: expect partial graph with warnings.
+- Manual smoke test: request `/gitreader/api/toc` and `/gitreader/api/graph` and verify non-empty output.
 
 ---
 

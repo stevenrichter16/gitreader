@@ -4,7 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GitReader Prototype</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='gitreader/styles.css') }}">
+  <link rel="stylesheet" href="{{ url_for('gitreader.static', filename='gitreader/styles.css') }}">
+  <link rel="icon" href="{{ url_for('gitreader.static', filename='favicon.ico') }}">
 </head>
 <body>
   <div class="app-shell">
@@ -71,6 +72,6 @@
     </main>
   </div>
 
-  <script src="{{ url_for('static', filename='gitreader/app.js') }}" defer></script>
+  <script src="{{ url_for('gitreader.static', filename='gitreader/app.js') }}" defer></script>
 </body>
 </html>

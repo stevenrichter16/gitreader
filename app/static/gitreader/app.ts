@@ -1,10 +1,18 @@
 type NarrationMode = 'hook' | 'summary' | 'key_lines' | 'connections' | 'next';
 
-type SymbolKind = 'file' | 'class' | 'function' | 'method';
+type SymbolKind = 'file' | 'class' | 'function' | 'method' | 'external' | 'blueprint';
 
 type EdgeKind = 'imports' | 'calls' | 'inherits' | 'contains' | 'blueprint';
 
 type EdgeConfidence = 'high' | 'medium' | 'low';
+
+interface SourceLocation {
+    path: string;
+    start_line: number;
+    end_line: number;
+    start_col: number;
+    end_col: number;
+}
 
 interface SymbolNode {
     id: string;
@@ -12,8 +20,9 @@ interface SymbolNode {
     kind: SymbolKind;
     summary: string;
     signature?: string;
-    body?: string;
-    location?: string;
+    docstring?: string;
+    location?: SourceLocation;
+    module?: string;
 }
 
 interface GraphEdge {
@@ -23,13 +32,45 @@ interface GraphEdge {
     confidence: EdgeConfidence;
 }
 
-interface Chapter {
+interface ChapterSummary {
     id: string;
     title: string;
     summary: string;
-    focus: SymbolNode;
+}
+
+interface ApiWarning {
+    code: string;
+    message: string;
+    path: string;
+    line?: number;
+}
+
+interface ApiTocResponse {
+    chapters: ChapterSummary[];
+    stats?: Record<string, number>;
+    warnings?: ApiWarning[];
+}
+
+interface ApiGraphResponse {
     nodes: SymbolNode[];
     edges: GraphEdge[];
+    stats?: Record<string, number>;
+    warnings?: ApiWarning[];
+}
+
+interface SymbolSnippetResponse {
+    id: string;
+    name: string;
+    kind: SymbolKind;
+    summary?: string;
+    signature?: string;
+    docstring?: string;
+    location: SourceLocation;
+    start_line: number;
+    end_line: number;
+    total_lines: number;
+    truncated: boolean;
+    snippet: string;
 }
 
 class GitReaderApp {
@@ -41,170 +82,11 @@ class GitReaderApp {
     private layoutButtons: NodeListOf<HTMLButtonElement>;
     private workspace: HTMLElement;
     private currentMode: NarrationMode = 'hook';
-    private chapters: Chapter[] = [
-        {
-            id: '1a',
-            title: 'Hello, world',
-            summary: 'A minimal Flask app opens the story.',
-            focus: {
-                id: 'flasky.app',
-                name: 'app',
-                kind: 'file',
-                summary: 'Entry point that spins up the server.',
-                signature: 'app = Flask(__name__)',
-                body: "@app.route('/')\ndef index():\n    return 'Hello, world'\n\nif __name__ == '__main__':\n    app.run()",
-                location: 'flasky.py:1',
-            },
-            nodes: [
-                {
-                    id: 'flasky.py',
-                    name: 'flasky.py',
-                    kind: 'file',
-                    summary: 'Single-file application entry point.',
-                },
-                {
-                    id: 'index',
-                    name: 'index',
-                    kind: 'function',
-                    summary: 'Root route returning a greeting.',
-                },
-            ],
-            edges: [
-                {
-                    source: 'flasky.py',
-                    target: 'index',
-                    kind: 'contains',
-                    confidence: 'high',
-                },
-            ],
-        },
-        {
-            id: '2a',
-            title: 'A complete application',
-            summary: 'Factory patterns and blueprints step in.',
-            focus: {
-                id: 'app.create_app',
-                name: 'create_app',
-                kind: 'function',
-                summary: 'Builds the Flask app and wires extensions.',
-                signature: 'def create_app(config_name):',
-                body: 'app = Flask(__name__)\napp.config.from_object(config[config_name])\napp.register_blueprint(main_blueprint)',
-                location: 'app/__init__.py:17',
-            },
-            nodes: [
-                {
-                    id: 'app.__init__',
-                    name: 'app/__init__.py',
-                    kind: 'file',
-                    summary: 'Application factory and extension setup.',
-                },
-                {
-                    id: 'main.blueprint',
-                    name: 'main',
-                    kind: 'class',
-                    summary: 'Blueprint for main routes.',
-                },
-                {
-                    id: 'config.Config',
-                    name: 'Config',
-                    kind: 'class',
-                    summary: 'Base configuration values.',
-                },
-            ],
-            edges: [
-                {
-                    source: 'app.__init__',
-                    target: 'main.blueprint',
-                    kind: 'imports',
-                    confidence: 'high',
-                },
-                {
-                    source: 'app.__init__',
-                    target: 'config.Config',
-                    kind: 'imports',
-                    confidence: 'medium',
-                },
-            ],
-        },
-        {
-            id: '2b',
-            title: 'Dynamic routes',
-            summary: 'Parameters flow through the URL.',
-            focus: {
-                id: 'main.user',
-                name: 'user',
-                kind: 'function',
-                summary: 'Reads a name parameter and renders a greeting.',
-                signature: "@main.route('/user/<name>')",
-                body: "def user(name):\n    return render_template('user.html', name=name)",
-                location: 'app/main/views.py:9',
-            },
-            nodes: [
-                {
-                    id: 'main.views',
-                    name: 'main/views.py',
-                    kind: 'file',
-                    summary: 'Routes for the main blueprint.',
-                },
-                {
-                    id: 'main.user',
-                    name: 'user',
-                    kind: 'function',
-                    summary: 'Dynamic route with a name parameter.',
-                },
-                {
-                    id: 'template.user',
-                    name: 'user.html',
-                    kind: 'file',
-                    summary: 'Template that renders a greeting.',
-                },
-            ],
-            edges: [
-                {
-                    source: 'main.user',
-                    target: 'template.user',
-                    kind: 'calls',
-                    confidence: 'medium',
-                },
-            ],
-        },
-        {
-            id: '3a',
-            title: 'Templates',
-            summary: 'Views hand data to Jinja templates.',
-            focus: {
-                id: 'main.index',
-                name: 'index',
-                kind: 'function',
-                summary: 'Renders the index template with data.',
-                signature: 'def index():',
-                body: "return render_template('index.html', name='Stranger')",
-                location: 'app/main/views.py:3',
-            },
-            nodes: [
-                {
-                    id: 'template.base',
-                    name: 'base.html',
-                    kind: 'file',
-                    summary: 'Defines the base layout and blocks.',
-                },
-                {
-                    id: 'template.index',
-                    name: 'index.html',
-                    kind: 'file',
-                    summary: 'Extends the base template.',
-                },
-            ],
-            edges: [
-                {
-                    source: 'template.index',
-                    target: 'template.base',
-                    kind: 'inherits',
-                    confidence: 'high',
-                },
-            ],
-        },
-    ];
+    private chapters: ChapterSummary[] = [];
+    private graphNodes: SymbolNode[] = [];
+    private graphEdges: GraphEdge[] = [];
+    private nodeById: Map<string, SymbolNode> = new Map();
+    private snippetCache: Map<string, SymbolSnippetResponse> = new Map();
 
     constructor() {
         this.tocList = this.getElement('toc-list');
@@ -217,11 +99,12 @@ class GitReaderApp {
     }
 
     init(): void {
-        this.renderToc();
+        this.renderLoadingState();
         this.bindEvents();
-        if (this.chapters.length > 0) {
-            this.loadChapter(this.chapters[0].id);
-        }
+        this.loadData().catch((error) => {
+            const message = error instanceof Error ? error.message : 'Failed to load data.';
+            this.renderErrorState(message);
+        });
     }
 
     private getElement(id: string): HTMLElement {
@@ -230,6 +113,46 @@ class GitReaderApp {
             throw new Error(`Missing element: ${id}`);
         }
         return element;
+    }
+
+    private async loadData(): Promise<void> {
+        const [tocData, graphData] = await Promise.all([
+            this.fetchJson<ApiTocResponse>('/gitreader/api/toc'),
+            this.fetchJson<ApiGraphResponse>('/gitreader/api/graph'),
+        ]);
+        this.chapters = Array.isArray(tocData.chapters) ? tocData.chapters : [];
+        this.graphNodes = Array.isArray(graphData.nodes) ? graphData.nodes : [];
+        this.graphEdges = Array.isArray(graphData.edges) ? graphData.edges : [];
+        this.nodeById = new Map(this.graphNodes.map((node) => [node.id, node]));
+        this.renderToc();
+        const defaultChapterId = this.chapters.length > 0 ? this.chapters[0].id : '';
+        this.loadChapter(defaultChapterId);
+    }
+
+    private async fetchJson<T>(url: string): Promise<T> {
+        const response = await fetch(url, {
+            headers: {
+                Accept: 'application/json',
+            },
+        });
+        if (!response.ok) {
+            throw new Error(`Request failed: ${response.status}`);
+        }
+        return response.json() as Promise<T>;
+    }
+
+    private renderLoadingState(): void {
+        this.tocList.innerHTML = '<li class="toc-item"><div class="toc-title">Loading chapters</div><p class="toc-summary">Scanning repository...</p></li>';
+        this.codeSurface.innerHTML = '<article class="code-card"><h3>Loading symbols...</h3><p>Fetching graph data.</p></article>';
+        this.canvasGrid.innerHTML = '<div class="canvas-node"><h4>Loading graph</h4><p>Preparing nodes and edges.</p></div>';
+        this.narratorOutput.innerHTML = '<p class="eyebrow">Narrator</p><h3>Loading</h3><p>Gathering the first clues.</p>';
+    }
+
+    private renderErrorState(message: string): void {
+        this.tocList.innerHTML = `<li class="toc-item"><div class="toc-title">Failed to load</div><p class="toc-summary">${this.escapeHtml(message)}</p></li>`;
+        this.codeSurface.innerHTML = `<article class="code-card"><h3>Unable to load</h3><p>${this.escapeHtml(message)}</p></article>`;
+        this.canvasGrid.innerHTML = `<div class="canvas-node"><h4>No graph</h4><p>${this.escapeHtml(message)}</p></div>`;
+        this.narratorOutput.innerHTML = `<p class="eyebrow">Narrator</p><h3>Paused</h3><p>${this.escapeHtml(message)}</p>`;
     }
 
     private bindEvents(): void {
@@ -241,6 +164,24 @@ class GitReaderApp {
             const chapterId = target.dataset.chapterId;
             if (chapterId) {
                 this.loadChapter(chapterId);
+            }
+        });
+
+        this.canvasGrid.addEventListener('click', (event) => {
+            const target = (event.target as HTMLElement).closest<HTMLDivElement>('.canvas-node');
+            if (!target) {
+                return;
+            }
+            const nodeId = target.dataset.nodeId;
+            if (!nodeId) {
+                return;
+            }
+            const node = this.nodeById.get(nodeId);
+            if (node) {
+                this.loadSymbolSnippet(node).catch(() => {
+                    this.renderCode(node);
+                    this.updateNarrator(node);
+                });
             }
         });
 
@@ -265,27 +206,106 @@ class GitReaderApp {
 
     private renderToc(): void {
         this.tocList.innerHTML = '';
+        if (this.chapters.length === 0) {
+            this.tocList.innerHTML = '<li class="toc-item"><div class="toc-title">No chapters yet</div><p class="toc-summary">Scan another repository.</p></li>';
+            return;
+        }
         this.chapters.forEach((chapter) => {
             const item = document.createElement('li');
             item.className = 'toc-item';
             item.dataset.chapterId = chapter.id;
             item.innerHTML = `
-                <div class="toc-title">${chapter.title}</div>
-                <p class="toc-summary">${chapter.summary}</p>
+                <div class="toc-title">${this.escapeHtml(chapter.title)}</div>
+                <p class="toc-summary">${this.escapeHtml(chapter.summary)}</p>
             `;
             this.tocList.appendChild(item);
         });
     }
 
     private loadChapter(chapterId: string): void {
-        const chapter = this.chapters.find((item) => item.id === chapterId);
-        if (!chapter) {
+        this.setActiveToc(chapterId);
+        const nodes = this.filterNodesForChapter(chapterId);
+        const edges = this.filterEdgesForNodes(nodes);
+        const focus = this.pickFocusNode(nodes);
+        this.renderGraph(nodes, edges);
+        this.loadSymbolSnippet(focus).catch(() => {
+            this.renderCode(focus);
+            this.updateNarrator(focus);
+        });
+    }
+
+    private async loadSymbolSnippet(symbol: SymbolNode): Promise<void> {
+        if (!symbol.id) {
+            this.renderCode(symbol);
+            this.updateNarrator(symbol);
             return;
         }
-        this.setActiveToc(chapterId);
-        this.renderCode(chapter.focus);
-        this.renderGraph(chapter.nodes, chapter.edges);
-        this.updateNarrator(chapter.focus);
+        const cached = this.snippetCache.get(symbol.id);
+        if (cached) {
+            this.renderCode(symbol, cached);
+            this.updateNarrator(symbol);
+            return;
+        }
+        const response = await this.fetchJson<SymbolSnippetResponse>(
+            `/gitreader/api/symbol?id=${encodeURIComponent(symbol.id)}`,
+        );
+        this.snippetCache.set(symbol.id, response);
+        this.renderCode(symbol, response);
+        this.updateNarrator(symbol);
+    }
+
+    private filterNodesForChapter(chapterId: string): SymbolNode[] {
+        if (!chapterId || !chapterId.startsWith('group:')) {
+            return this.graphNodes;
+        }
+        const group = chapterId.slice('group:'.length);
+        const filtered = this.graphNodes.filter((node) => {
+            const path = this.getNodePath(node);
+            if (!path) {
+                return false;
+            }
+            const normalized = path.replace(/\\/g, '/');
+            if (group === 'root') {
+                return normalized.indexOf('/') === -1;
+            }
+            return normalized.startsWith(`${group}/`);
+        });
+        return filtered.length > 0 ? filtered : this.graphNodes;
+    }
+
+    private filterEdgesForNodes(nodes: SymbolNode[]): GraphEdge[] {
+        const allowed = new Set(nodes.map((node) => node.id));
+        return this.graphEdges.filter((edge) => allowed.has(edge.source) && allowed.has(edge.target));
+    }
+
+    private pickFocusNode(nodes: SymbolNode[]): SymbolNode {
+        if (nodes.length === 0) {
+            return this.fallbackSymbol();
+        }
+        const priority: SymbolKind[] = ['function', 'method', 'class', 'file', 'blueprint', 'external'];
+        for (const kind of priority) {
+            const match = nodes.find((node) => node.kind === kind);
+            if (match) {
+                return match;
+            }
+        }
+        return nodes[0];
+    }
+
+    private fallbackSymbol(): SymbolNode {
+        return {
+            id: 'fallback',
+            name: 'Repository',
+            kind: 'file',
+            summary: 'Select a chapter to explore symbols.',
+        };
+    }
+
+    private getNodePath(node: SymbolNode): string | null {
+        if (node.location && node.location.path) {
+            return node.location.path;
+        }
+        return null;
     }
 
     private setActiveToc(chapterId: string): void {
@@ -296,21 +316,43 @@ class GitReaderApp {
         });
     }
 
-    private renderCode(symbol: SymbolNode): void {
+    private formatLocation(location?: SourceLocation, startLine?: number, endLine?: number): string {
+        if (!location || !location.path) {
+            return 'location unknown';
+        }
+        if (startLine && startLine > 0) {
+            const endLabel = endLine && endLine !== startLine ? `-${endLine}` : '';
+            return `${location.path}:${startLine}${endLabel}`;
+        }
+        if (location.start_line) {
+            const endLabel = location.end_line && location.end_line !== location.start_line
+                ? `-${location.end_line}`
+                : '';
+            return `${location.path}:${location.start_line}${endLabel}`;
+        }
+        return location.path;
+    }
+
+    private renderCode(symbol: SymbolNode, snippet?: SymbolSnippetResponse): void {
+        const summary = snippet?.summary ?? symbol.summary ?? 'No summary yet.';
+        const signature = snippet?.signature ?? symbol.signature ?? 'signature pending';
+        const locationLabel = this.formatLocation(symbol.location, snippet?.start_line, snippet?.end_line);
+        const body = snippet?.snippet ?? '# body not loaded yet';
+        const truncationLabel = snippet?.truncated ? ' (truncated)' : '';
         this.codeSurface.innerHTML = `
             <article class="code-card">
                 <div class="code-meta">
-                    <span>${symbol.kind.toUpperCase()}</span>
-                    <span>${symbol.location ?? 'location unknown'}</span>
+                    <span>${this.escapeHtml(symbol.kind.toUpperCase())}</span>
+                    <span>${this.escapeHtml(locationLabel)}${this.escapeHtml(truncationLabel)}</span>
                 </div>
                 <div>
-                    <h3>${symbol.name}</h3>
-                    <p>${symbol.summary}</p>
+                    <h3>${this.escapeHtml(symbol.name)}</h3>
+                    <p>${this.escapeHtml(summary)}</p>
                 </div>
-                <div class="code-signature">${symbol.signature ?? 'signature pending'}</div>
-                <details class="code-details">
+                <div class="code-signature">${this.escapeHtml(signature)}</div>
+                <details class="code-details" open>
                     <summary>Reveal body</summary>
-                    <pre>${symbol.body ?? '# body not loaded yet'}</pre>
+                    <pre>${this.escapeHtml(body)}</pre>
                 </details>
             </article>
         `;
@@ -318,12 +360,20 @@ class GitReaderApp {
 
     private renderGraph(nodes: SymbolNode[], edges: GraphEdge[]): void {
         this.canvasGrid.innerHTML = '';
+        if (nodes.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'canvas-node';
+            empty.innerHTML = '<h4>No nodes yet</h4><p>Graph data has not loaded.</p>';
+            this.canvasGrid.appendChild(empty);
+            return;
+        }
         nodes.forEach((node) => {
             const nodeEl = document.createElement('div');
             nodeEl.className = 'canvas-node';
+            nodeEl.dataset.nodeId = node.id;
             nodeEl.innerHTML = `
-                <h4>${node.name}</h4>
-                <p>${node.kind} - ${node.summary}</p>
+                <h4>${this.escapeHtml(node.name)}</h4>
+                <p>${this.escapeHtml(node.kind)} - ${this.escapeHtml(node.summary || 'No summary')}</p>
             `;
             this.canvasGrid.appendChild(nodeEl);
         });
@@ -411,10 +461,10 @@ class GitReaderApp {
         this.modeButtons.forEach((button) => {
             button.classList.toggle('is-active', button.dataset.mode === mode);
         });
-        const activeChapter = this.getActiveChapter();
-        if (activeChapter) {
-            this.updateNarrator(activeChapter.focus);
-        }
+        const chapterId = this.getActiveChapterId();
+        const nodes = this.filterNodesForChapter(chapterId ?? '');
+        const focus = this.pickFocusNode(nodes);
+        this.updateNarrator(focus);
     }
 
     private setLayout(layout: string): void {
@@ -424,13 +474,21 @@ class GitReaderApp {
         });
     }
 
-    private getActiveChapter(): Chapter | undefined {
+    private getActiveChapterId(): string | null {
         const active = this.tocList.querySelector('.toc-item.is-active') as HTMLElement | null;
         if (!active) {
-            return undefined;
+            return null;
         }
-        const chapterId = active.dataset.chapterId;
-        return this.chapters.find((item) => item.id === chapterId);
+        return active.dataset.chapterId ?? null;
+    }
+
+    private escapeHtml(value: string): string {
+        return value
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 }
 
