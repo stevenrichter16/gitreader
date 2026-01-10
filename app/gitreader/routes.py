@@ -29,15 +29,18 @@ def toc():
 @gitreader.route('/api/graph')
 def graph():
     spec = _repo_spec_from_request()
+    scope = request.args.get('scope', '')
     try:
         repo_index = _load_index(spec)
     except ValueError as exc:
         return jsonify({'error': str(exc)}), 400
+    nodes, edges = _filter_graph(repo_index, scope)
     return jsonify({
-        'nodes': [node.to_dict() for node in repo_index.nodes.values()],
-        'edges': [edge.to_dict() for edge in repo_index.edges],
+        'nodes': [node.to_dict() for node in nodes],
+        'edges': [edge.to_dict() for edge in edges],
         'stats': repo_index.stats,
         'warnings': [warning.to_dict() for warning in repo_index.warnings],
+        'scope': scope,
     })
 
 
@@ -70,13 +73,19 @@ def narrate():
 
 
 @gitreader.route('/api/symbol')
-def symbol():
-    symbol_id = request.args.get('id')
+@gitreader.route('/api/symbol/<path:symbol_id>')
+def symbol(symbol_id=None):
     if not symbol_id:
-        return jsonify({'error': 'Missing id'}), 400
+        symbol_id = request.args.get('id')
+    if not symbol_id:
+        return jsonify({
+            'error': 'Missing id',
+            'hint': 'Use /gitreader/api/symbol?id=symbol:module.name or /gitreader/api/symbol/symbol:module.name',
+        }), 400
+    section = request.args.get('section', 'full')
     spec = _repo_spec_from_request()
     try:
-        snippet = _load_symbol_snippet(spec, symbol_id)
+        snippet = _load_symbol_snippet(spec, symbol_id, section)
     except ValueError as exc:
         return jsonify({'error': str(exc)}), 400
     return jsonify(snippet)
@@ -100,9 +109,42 @@ def _load_index(spec: RepoSpec):
     return get_repo_index(spec, cache_root=cache_root)
 
 
-def _load_symbol_snippet(spec: RepoSpec, symbol_id: str):
+def _load_symbol_snippet(spec: RepoSpec, symbol_id: str, section: str):
     cache_root = os.path.join(current_app.instance_path, 'gitreader')
-    return get_symbol_snippet(spec, cache_root=cache_root, symbol_id=symbol_id)
+    return get_symbol_snippet(spec, cache_root=cache_root, symbol_id=symbol_id, section=section)
+
+
+def _filter_graph(repo_index, scope: str):
+    if not scope or scope == 'full' or not scope.startswith('group:'):
+        return list(repo_index.nodes.values()), list(repo_index.edges)
+    group = scope[len('group:'):]
+    allowed = set()
+    for node in repo_index.nodes.values():
+        location = node.location
+        if not location or not location.path:
+            continue
+        normalized = location.path.replace(os.sep, '/')
+        if group == 'root':
+            if '/' not in normalized:
+                allowed.add(node.id)
+        elif normalized.startswith(f'{group}/'):
+            allowed.add(node.id)
+    if not allowed:
+        return list(repo_index.nodes.values()), list(repo_index.edges)
+    external_extra = set()
+    for edge in repo_index.edges:
+        if edge.source in allowed and edge.target not in allowed:
+            target_node = repo_index.nodes.get(edge.target)
+            if target_node and target_node.kind == 'external':
+                external_extra.add(edge.target)
+        elif edge.target in allowed and edge.source not in allowed:
+            source_node = repo_index.nodes.get(edge.source)
+            if source_node and source_node.kind == 'external':
+                external_extra.add(edge.source)
+    allowed |= external_extra
+    nodes = [node for node_id, node in repo_index.nodes.items() if node_id in allowed]
+    edges = [edge for edge in repo_index.edges if edge.source in allowed and edge.target in allowed]
+    return nodes, edges
 
 
 def _default_repo_root() -> str:

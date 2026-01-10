@@ -1,6 +1,6 @@
 {
-  "commit_sha": "f2a9b5b7b31f35b5ef39df6f1fa3e1f9b319bfbb",
-  "content_signature": "6df25d9ff1ff0dca33ddede9e8a213ca8acd3e6d",
+  "commit_sha": "ba828640cde1f299170288a220cbc4fb8f3c43ec",
+  "content_signature": "41f497f74320078723615f652bdeabaca3e610f1",
   "edges": [
     {
       "confidence": "high",
@@ -731,6 +731,12 @@
     {
       "confidence": "high",
       "kind": "contains",
+      "source": "file:app/gitreader/service.py",
+      "target": "symbol:app.gitreader.service._resolve_snippet_range"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
       "source": "file:app/gitreader/ingest.py",
       "target": "symbol:app.gitreader.ingest.RepoHandle"
     },
@@ -1087,6 +1093,12 @@
       "kind": "contains",
       "source": "file:app/gitreader/routes.py",
       "target": "symbol:app.gitreader.routes._load_symbol_snippet"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
+      "source": "file:app/gitreader/routes.py",
+      "target": "symbol:app.gitreader.routes._filter_graph"
     },
     {
       "confidence": "high",
@@ -5898,7 +5910,7 @@
       "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.gitreader.service.get_symbol_snippet",
-      "target": "symbol:app.gitreader.service._resolve_line_range"
+      "target": "symbol:app.gitreader.service._resolve_snippet_range"
     },
     {
       "confidence": "low",
@@ -5934,13 +5946,13 @@
       "confidence": "low",
       "kind": "calls",
       "source": "symbol:app.gitreader.service.get_symbol_snippet",
-      "target": "external:len"
+      "target": "external:to_dict"
     },
     {
       "confidence": "low",
       "kind": "calls",
       "source": "symbol:app.gitreader.service.get_symbol_snippet",
-      "target": "external:to_dict"
+      "target": "external:len"
     },
     {
       "confidence": "low",
@@ -6061,6 +6073,96 @@
       "kind": "calls",
       "source": "symbol:app.gitreader.service._resolve_line_range",
       "target": "external:getattr"
+    },
+    {
+      "confidence": "high",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service._resolve_snippet_range",
+      "target": "symbol:app.gitreader.service._resolve_line_range"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service._resolve_snippet_range",
+      "target": "external:max"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service._resolve_snippet_range",
+      "target": "external:min"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service._resolve_snippet_range",
+      "target": "external:highlights.append"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service._resolve_snippet_range",
+      "target": "external:highlights.append"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service._resolve_snippet_range",
+      "target": "external:min"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service._resolve_snippet_range",
+      "target": "external:lstrip"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service._resolve_snippet_range",
+      "target": "external:line.startswith"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service._resolve_snippet_range",
+      "target": "external:getattr"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service._resolve_snippet_range",
+      "target": "external:min"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service._resolve_snippet_range",
+      "target": "external:min"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service._resolve_snippet_range",
+      "target": "external:highlights.append"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service._resolve_snippet_range",
+      "target": "external:highlights.append"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service._resolve_snippet_range",
+      "target": "external:getattr"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service._resolve_snippet_range",
+      "target": "external:highlights.append"
     },
     {
       "confidence": "high",
@@ -7935,6 +8037,18 @@
       "target": "symbol:app.gitreader.routes._repo_spec_from_request"
     },
     {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes.graph",
+      "target": "external:get"
+    },
+    {
+      "confidence": "high",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes.graph",
+      "target": "symbol:app.gitreader.routes._filter_graph"
+    },
+    {
       "confidence": "medium",
       "kind": "calls",
       "source": "symbol:app.gitreader.routes.graph",
@@ -7969,12 +8083,6 @@
       "kind": "calls",
       "source": "symbol:app.gitreader.routes.graph",
       "target": "external:warning.to_dict"
-    },
-    {
-      "confidence": "low",
-      "kind": "calls",
-      "source": "symbol:app.gitreader.routes.graph",
-      "target": "external:values"
     },
     {
       "confidence": "low",
@@ -8025,6 +8133,12 @@
       "target": "external:app.gitreader.gitreader"
     },
     {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes.symbol",
+      "target": "external:app.gitreader.gitreader"
+    },
+    {
       "confidence": "low",
       "kind": "calls",
       "source": "symbol:app.gitreader.routes.symbol",
@@ -8041,6 +8155,12 @@
       "kind": "calls",
       "source": "symbol:app.gitreader.routes.symbol",
       "target": "external:flask.jsonify"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes.symbol",
+      "target": "external:get"
     },
     {
       "confidence": "high",
@@ -8125,6 +8245,126 @@
       "kind": "calls",
       "source": "symbol:app.gitreader.routes._load_symbol_snippet",
       "target": "external:app.gitreader.service.get_symbol_snippet"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:set"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:values"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:set"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:replace"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:scope.startswith"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:list"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:list"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:len"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:normalized.startswith"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:list"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:list"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:get"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:items"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:values"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:allowed.add"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:allowed.add"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:values"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:external_extra.add"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:get"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:external_extra.add"
     },
     {
       "confidence": "low",
@@ -12891,7 +13131,7 @@
       "target": "external:str"
     }
   ],
-  "generated_at": 1768024222.708011,
+  "generated_at": 1768082564.848289,
   "nodes": [
     {
       "id": "file:flasky.py",
@@ -15314,7 +15554,7 @@
       "kind": "function",
       "location": {
         "end_col": 5,
-        "end_line": 112,
+        "end_line": 121,
         "path": "app/gitreader/service.py",
         "start_col": 0,
         "start_line": 72
@@ -15329,10 +15569,10 @@
       "kind": "function",
       "location": {
         "end_col": 78,
-        "end_line": 118,
+        "end_line": 127,
         "path": "app/gitreader/service.py",
         "start_col": 0,
-        "start_line": 115
+        "start_line": 124
       },
       "module": "app.gitreader.service",
       "name": "_compute_signature",
@@ -15344,10 +15584,10 @@
       "kind": "function",
       "location": {
         "end_col": 17,
-        "end_line": 132,
+        "end_line": 141,
         "path": "app/gitreader/service.py",
         "start_col": 0,
-        "start_line": 121
+        "start_line": 130
       },
       "module": "app.gitreader.service",
       "name": "_read_source_lines",
@@ -15359,14 +15599,29 @@
       "kind": "function",
       "location": {
         "end_col": 49,
-        "end_line": 145,
+        "end_line": 154,
         "path": "app/gitreader/service.py",
         "start_col": 0,
-        "start_line": 135
+        "start_line": 144
       },
       "module": "app.gitreader.service",
       "name": "_resolve_line_range",
       "signature": "def _resolve_line_range(kind: str, location, total_lines: int, max_lines: int) -> tuple[int, int]",
+      "summary": ""
+    },
+    {
+      "id": "symbol:app.gitreader.service._resolve_snippet_range",
+      "kind": "function",
+      "location": {
+        "end_col": 43,
+        "end_line": 221,
+        "path": "app/gitreader/service.py",
+        "start_col": 0,
+        "start_line": 157
+      },
+      "module": "app.gitreader.service",
+      "name": "_resolve_snippet_range",
+      "signature": "def _resolve_snippet_range(",
       "summary": ""
     },
     {
@@ -16183,7 +16438,7 @@
       "kind": "function",
       "location": {
         "end_col": 6,
-        "end_line": 41,
+        "end_line": 44,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
         "start_line": 30
@@ -16198,10 +16453,10 @@
       "kind": "function",
       "location": {
         "end_col": 29,
-        "end_line": 69,
+        "end_line": 72,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 45
+        "start_line": 48
       },
       "module": "app.gitreader.routes",
       "name": "narrate",
@@ -16213,14 +16468,14 @@
       "kind": "function",
       "location": {
         "end_col": 27,
-        "end_line": 82,
+        "end_line": 91,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 73
+        "start_line": 77
       },
       "module": "app.gitreader.routes",
       "name": "symbol",
-      "signature": "def symbol()",
+      "signature": "def symbol(symbol_id=None)",
       "summary": ""
     },
     {
@@ -16228,10 +16483,10 @@
       "kind": "function",
       "location": {
         "end_col": 5,
-        "end_line": 95,
+        "end_line": 104,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 85
+        "start_line": 94
       },
       "module": "app.gitreader.routes",
       "name": "_repo_spec_from_request",
@@ -16243,10 +16498,10 @@
       "kind": "function",
       "location": {
         "end_col": 54,
-        "end_line": 100,
+        "end_line": 109,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 98
+        "start_line": 107
       },
       "module": "app.gitreader.routes",
       "name": "_load_index",
@@ -16257,15 +16512,30 @@
       "id": "symbol:app.gitreader.routes._load_symbol_snippet",
       "kind": "function",
       "location": {
-        "end_col": 79,
-        "end_line": 105,
+        "end_col": 96,
+        "end_line": 114,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 103
+        "start_line": 112
       },
       "module": "app.gitreader.routes",
       "name": "_load_symbol_snippet",
-      "signature": "def _load_symbol_snippet(spec: RepoSpec, symbol_id: str)",
+      "signature": "def _load_symbol_snippet(spec: RepoSpec, symbol_id: str, section: str)",
+      "summary": ""
+    },
+    {
+      "id": "symbol:app.gitreader.routes._filter_graph",
+      "kind": "function",
+      "location": {
+        "end_col": 23,
+        "end_line": 147,
+        "path": "app/gitreader/routes.py",
+        "start_col": 0,
+        "start_line": 117
+      },
+      "module": "app.gitreader.routes",
+      "name": "_filter_graph",
+      "signature": "def _filter_graph(repo_index, scope: str)",
       "summary": ""
     },
     {
@@ -16273,10 +16543,10 @@
       "kind": "function",
       "location": {
         "end_col": 20,
-        "end_line": 114,
+        "end_line": 156,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 108
+        "start_line": 150
       },
       "module": "app.gitreader.routes",
       "name": "_default_repo_root",
@@ -18988,6 +19258,24 @@
       "summary": ""
     },
     {
+      "id": "external:highlights.append",
+      "kind": "external",
+      "name": "highlights.append",
+      "summary": ""
+    },
+    {
+      "id": "external:lstrip",
+      "kind": "external",
+      "name": "lstrip",
+      "summary": ""
+    },
+    {
+      "id": "external:line.startswith",
+      "kind": "external",
+      "name": "line.startswith",
+      "summary": ""
+    },
+    {
       "id": "external:exists",
       "kind": "external",
       "name": "exists",
@@ -19405,6 +19693,36 @@
       "id": "external:app.gitreader.service.get_symbol_snippet",
       "kind": "external",
       "name": "app.gitreader.service.get_symbol_snippet",
+      "summary": ""
+    },
+    {
+      "id": "external:set",
+      "kind": "external",
+      "name": "set",
+      "summary": ""
+    },
+    {
+      "id": "external:scope.startswith",
+      "kind": "external",
+      "name": "scope.startswith",
+      "summary": ""
+    },
+    {
+      "id": "external:normalized.startswith",
+      "kind": "external",
+      "name": "normalized.startswith",
+      "summary": ""
+    },
+    {
+      "id": "external:allowed.add",
+      "kind": "external",
+      "name": "allowed.add",
+      "summary": ""
+    },
+    {
+      "id": "external:external_extra.add",
+      "kind": "external",
+      "name": "external_extra.add",
       "summary": ""
     },
     {
@@ -19933,10 +20251,10 @@
   "repo_id": "users-steven-documents-flasky-master-486dfca52949",
   "root_path": "/Users/steven/Documents/flasky-master",
   "stats": {
-    "edges": 2148,
-    "nodes": 681,
+    "edges": 2188,
+    "nodes": 691,
     "python_files": 48,
-    "total_bytes": 227812,
+    "total_bytes": 243098,
     "total_files": 99,
     "warnings": 1
   },

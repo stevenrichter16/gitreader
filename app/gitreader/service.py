@@ -74,6 +74,7 @@ def get_symbol_snippet(
     cache_root: str,
     symbol_id: str,
     max_lines: int = DEFAULT_SNIPPET_LINES,
+    section: str = 'full',
 ) -> dict:
     index = get_repo_index(spec, cache_root=cache_root)
     node = index.nodes.get(symbol_id)
@@ -87,7 +88,13 @@ def get_symbol_snippet(
     if not lines:
         raise ValueError('Source file is empty or unreadable')
 
-    start_line, end_line = _resolve_line_range(node.kind, node.location, len(lines), max_lines)
+    start_line, end_line, highlights = _resolve_snippet_range(
+        node,
+        lines=lines,
+        total_lines=len(lines),
+        max_lines=max_lines,
+        section=section,
+    )
     snippet_lines = lines[start_line - 1:end_line]
     snippet = ''.join(snippet_lines)
     line_count = max(0, end_line - start_line + 1)
@@ -108,6 +115,8 @@ def get_symbol_snippet(
         'end_line': end_line,
         'total_lines': len(lines),
         'truncated': truncated,
+        'highlights': highlights,
+        'section': section,
         'snippet': snippet,
     }
 
@@ -143,3 +152,70 @@ def _resolve_line_range(kind: str, location, total_lines: int, max_lines: int) -
     if end_line - start_line + 1 > max_lines:
         end_line = min(total_lines, start_line + max_lines - 1)
     return start_line, min(end_line, total_lines)
+
+
+def _resolve_snippet_range(
+    node,
+    lines: list[str],
+    total_lines: int,
+    max_lines: int,
+    section: str,
+) -> tuple[int, int, list[dict[str, object]]]:
+    if section == 'body' and node.kind in ('function', 'method', 'class'):
+        signature_line = max(1, getattr(node.location, 'start_line', 1) or 1)
+        if total_lines > 0:
+            signature_line = min(signature_line, total_lines)
+        header_start = signature_line
+        while header_start > 1:
+            line = lines[header_start - 2].lstrip()
+            if line.startswith('@'):
+                header_start -= 1
+            else:
+                break
+        body_start = min(signature_line + 1, total_lines)
+        if body_start < 1:
+            body_start = 1
+        end_line = getattr(node.location, 'end_line', 0) or 0
+        if end_line < body_start:
+            end_line = min(total_lines, body_start + DEFAULT_FALLBACK_CONTEXT - 1)
+        if end_line - header_start + 1 > max_lines:
+            end_line = min(total_lines, header_start + max_lines - 1)
+        highlights = []
+        if header_start < signature_line:
+            highlights.append({
+                'label': 'decorators',
+                'start_line': header_start,
+                'end_line': signature_line - 1,
+            })
+        highlights.append({
+            'label': 'signature',
+            'start_line': signature_line,
+            'end_line': signature_line,
+        })
+        if body_start <= end_line:
+            highlights.append({
+                'label': 'body_start',
+                'start_line': body_start,
+                'end_line': body_start,
+            })
+            if end_line != body_start:
+                highlights.append({
+                    'label': 'body_end',
+                    'start_line': end_line,
+                    'end_line': end_line,
+                })
+        return header_start, end_line, highlights
+
+    start_line, end_line = _resolve_line_range(node.kind, node.location, total_lines, max_lines)
+    highlights = [{
+        'label': 'snippet_start',
+        'start_line': start_line,
+        'end_line': start_line,
+    }]
+    if end_line != start_line:
+        highlights.append({
+            'label': 'snippet_end',
+            'start_line': end_line,
+            'end_line': end_line,
+        })
+    return start_line, end_line, highlights

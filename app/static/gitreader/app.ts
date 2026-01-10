@@ -70,7 +70,15 @@ interface SymbolSnippetResponse {
     end_line: number;
     total_lines: number;
     truncated: boolean;
+    section: string;
+    highlights: HighlightRange[];
     snippet: string;
+}
+
+interface HighlightRange {
+    label: string;
+    start_line: number;
+    end_line: number;
 }
 
 class GitReaderApp {
@@ -80,6 +88,7 @@ class GitReaderApp {
     private narratorOutput: HTMLElement;
     private modeButtons: NodeListOf<HTMLButtonElement>;
     private layoutButtons: NodeListOf<HTMLButtonElement>;
+    private narratorToggle: HTMLButtonElement;
     private workspace: HTMLElement;
     private currentMode: NarrationMode = 'hook';
     private chapters: ChapterSummary[] = [];
@@ -87,6 +96,8 @@ class GitReaderApp {
     private graphEdges: GraphEdge[] = [];
     private nodeById: Map<string, SymbolNode> = new Map();
     private snippetCache: Map<string, SymbolSnippetResponse> = new Map();
+    private graphCache: Map<string, ApiGraphResponse> = new Map();
+    private narratorVisible = true;
 
     constructor() {
         this.tocList = this.getElement('toc-list');
@@ -94,13 +105,15 @@ class GitReaderApp {
         this.canvasGrid = this.getElement('canvas-grid');
         this.narratorOutput = this.getElement('narrator-output');
         this.modeButtons = document.querySelectorAll<HTMLButtonElement>('.mode-btn');
-        this.layoutButtons = document.querySelectorAll<HTMLButtonElement>('.nav-btn');
+        this.layoutButtons = document.querySelectorAll<HTMLButtonElement>('.nav-btn[data-layout]');
+        this.narratorToggle = this.getElement('narrator-toggle') as HTMLButtonElement;
         this.workspace = this.getElement('workspace');
     }
 
     init(): void {
         this.renderLoadingState();
         this.bindEvents();
+        this.updateNarratorToggle();
         this.loadData().catch((error) => {
             const message = error instanceof Error ? error.message : 'Failed to load data.';
             this.renderErrorState(message);
@@ -116,17 +129,11 @@ class GitReaderApp {
     }
 
     private async loadData(): Promise<void> {
-        const [tocData, graphData] = await Promise.all([
-            this.fetchJson<ApiTocResponse>('/gitreader/api/toc'),
-            this.fetchJson<ApiGraphResponse>('/gitreader/api/graph'),
-        ]);
+        const tocData = await this.fetchJson<ApiTocResponse>('/gitreader/api/toc');
         this.chapters = Array.isArray(tocData.chapters) ? tocData.chapters : [];
-        this.graphNodes = Array.isArray(graphData.nodes) ? graphData.nodes : [];
-        this.graphEdges = Array.isArray(graphData.edges) ? graphData.edges : [];
-        this.nodeById = new Map(this.graphNodes.map((node) => [node.id, node]));
         this.renderToc();
         const defaultChapterId = this.chapters.length > 0 ? this.chapters[0].id : '';
-        this.loadChapter(defaultChapterId);
+        await this.loadChapter(defaultChapterId);
     }
 
     private async fetchJson<T>(url: string): Promise<T> {
@@ -163,7 +170,7 @@ class GitReaderApp {
             }
             const chapterId = target.dataset.chapterId;
             if (chapterId) {
-                this.loadChapter(chapterId);
+                void this.loadChapter(chapterId);
             }
         });
 
@@ -202,6 +209,12 @@ class GitReaderApp {
                 }
             });
         });
+
+        this.narratorToggle.addEventListener('click', () => {
+            this.narratorVisible = !this.narratorVisible;
+            this.workspace.classList.toggle('is-narrator-hidden', !this.narratorVisible);
+            this.updateNarratorToggle();
+        });
     }
 
     private renderToc(): void {
@@ -222,8 +235,10 @@ class GitReaderApp {
         });
     }
 
-    private loadChapter(chapterId: string): void {
+    private async loadChapter(chapterId: string): Promise<void> {
         this.setActiveToc(chapterId);
+        const scope = this.getScopeForChapter(chapterId);
+        await this.loadGraphForScope(scope);
         const nodes = this.filterNodesForChapter(chapterId);
         const edges = this.filterEdgesForNodes(nodes);
         const focus = this.pickFocusNode(nodes);
@@ -234,8 +249,33 @@ class GitReaderApp {
         });
     }
 
+    private getScopeForChapter(chapterId: string): string {
+        if (chapterId && chapterId.startsWith('group:')) {
+            return chapterId;
+        }
+        return 'full';
+    }
+
+    private async loadGraphForScope(scope: string): Promise<void> {
+        const cached = this.graphCache.get(scope);
+        if (cached) {
+            this.setGraphData(cached);
+            return;
+        }
+        const suffix = scope && scope !== 'full' ? `?scope=${encodeURIComponent(scope)}` : '';
+        const graphData = await this.fetchJson<ApiGraphResponse>(`/gitreader/api/graph${suffix}`);
+        this.graphCache.set(scope, graphData);
+        this.setGraphData(graphData);
+    }
+
+    private setGraphData(graphData: ApiGraphResponse): void {
+        this.graphNodes = Array.isArray(graphData.nodes) ? graphData.nodes : [];
+        this.graphEdges = Array.isArray(graphData.edges) ? graphData.edges : [];
+        this.nodeById = new Map(this.graphNodes.map((node) => [node.id, node]));
+    }
+
     private async loadSymbolSnippet(symbol: SymbolNode): Promise<void> {
-        if (!symbol.id) {
+        if (!this.canFetchSnippet(symbol)) {
             this.renderCode(symbol);
             this.updateNarrator(symbol);
             return;
@@ -246,12 +286,30 @@ class GitReaderApp {
             this.updateNarrator(symbol);
             return;
         }
+        const section = this.getSnippetSection(symbol);
         const response = await this.fetchJson<SymbolSnippetResponse>(
-            `/gitreader/api/symbol?id=${encodeURIComponent(symbol.id)}`,
+            `/gitreader/api/symbol?id=${encodeURIComponent(symbol.id)}&section=${section}`,
         );
         this.snippetCache.set(symbol.id, response);
         this.renderCode(symbol, response);
         this.updateNarrator(symbol);
+    }
+
+    private getSnippetSection(symbol: SymbolNode): string {
+        if (symbol.kind === 'function' || symbol.kind === 'method' || symbol.kind === 'class') {
+            return 'body';
+        }
+        return 'full';
+    }
+
+    private canFetchSnippet(symbol: SymbolNode): boolean {
+        if (!symbol.id) {
+            return false;
+        }
+        if (symbol.kind === 'external') {
+            return false;
+        }
+        return Boolean(symbol.location && symbol.location.path);
     }
 
     private filterNodesForChapter(chapterId: string): SymbolNode[] {
@@ -336,9 +394,10 @@ class GitReaderApp {
     private renderCode(symbol: SymbolNode, snippet?: SymbolSnippetResponse): void {
         const summary = snippet?.summary ?? symbol.summary ?? 'No summary yet.';
         const signature = snippet?.signature ?? symbol.signature ?? 'signature pending';
-        const locationLabel = this.formatLocation(symbol.location, snippet?.start_line, snippet?.end_line);
-        const body = snippet?.snippet ?? '# body not loaded yet';
+        const displayRange = this.getDisplayRange(symbol, snippet);
+        const locationLabel = this.formatLocation(symbol.location, displayRange.startLine, displayRange.endLine);
         const truncationLabel = snippet?.truncated ? ' (truncated)' : '';
+        const snippetHtml = this.renderSnippetLines(snippet);
         this.codeSurface.innerHTML = `
             <article class="code-card">
                 <div class="code-meta">
@@ -352,10 +411,59 @@ class GitReaderApp {
                 <div class="code-signature">${this.escapeHtml(signature)}</div>
                 <details class="code-details" open>
                     <summary>Reveal body</summary>
-                    <pre>${this.escapeHtml(body)}</pre>
+                    <pre><code>${snippetHtml}</code></pre>
                 </details>
             </article>
         `;
+    }
+
+    private getDisplayRange(
+        symbol: SymbolNode,
+        snippet?: SymbolSnippetResponse,
+    ): { startLine?: number; endLine?: number } {
+        if (snippet?.section === 'body' && snippet.start_line) {
+            return { startLine: snippet.start_line, endLine: snippet.end_line };
+        }
+        if ((symbol.kind === 'function' || symbol.kind === 'method' || symbol.kind === 'class') && symbol.location?.start_line) {
+            return {
+                startLine: symbol.location.start_line,
+                endLine: symbol.location.end_line || snippet?.end_line || symbol.location.start_line,
+            };
+        }
+        if (snippet?.start_line) {
+            return { startLine: snippet.start_line, endLine: snippet.end_line };
+        }
+        if (symbol.location?.start_line) {
+            return { startLine: symbol.location.start_line, endLine: symbol.location.end_line };
+        }
+        return {};
+    }
+
+    private renderSnippetLines(snippet?: SymbolSnippetResponse): string {
+        const body = snippet?.snippet ?? '# body not loaded yet';
+        const startLine = snippet?.start_line ?? 1;
+        const highlightSet = this.buildHighlightSet(snippet?.highlights ?? []);
+        const lines = body.replace(/\n$/, '').split('\n');
+        return lines
+            .map((line, index) => {
+                const lineNumber = startLine + index;
+                const isHighlighted = highlightSet.has(lineNumber);
+                const classes = isHighlighted ? 'code-line is-highlight' : 'code-line';
+                return `<span class="${classes}"><span class="line-no">${lineNumber}</span>${this.escapeHtml(line)}</span>`;
+            })
+            .join('\n');
+    }
+
+    private buildHighlightSet(highlights: HighlightRange[]): Set<number> {
+        const highlightSet = new Set<number>();
+        highlights.forEach((range) => {
+            const start = Math.min(range.start_line, range.end_line);
+            const end = Math.max(range.start_line, range.end_line);
+            for (let line = start; line <= end; line += 1) {
+                highlightSet.add(line);
+            }
+        });
+        return highlightSet;
     }
 
     private renderGraph(nodes: SymbolNode[], edges: GraphEdge[]): void {
@@ -489,6 +597,12 @@ class GitReaderApp {
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
+    }
+
+    private updateNarratorToggle(): void {
+        this.narratorToggle.classList.toggle('is-active', this.narratorVisible);
+        this.narratorToggle.setAttribute('aria-pressed', String(this.narratorVisible));
+        this.narratorToggle.textContent = this.narratorVisible ? 'Narrator' : 'Narrator Off';
     }
 }
 

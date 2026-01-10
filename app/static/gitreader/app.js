@@ -24,7 +24,8 @@
         this.canvasGrid = getElement('canvas-grid');
         this.narratorOutput = getElement('narrator-output');
         this.modeButtons = document.querySelectorAll('.mode-btn');
-        this.layoutButtons = document.querySelectorAll('.nav-btn');
+        this.layoutButtons = document.querySelectorAll('.nav-btn[data-layout]');
+        this.narratorToggle = getElement('narrator-toggle');
         this.workspace = getElement('workspace');
         this.currentMode = 'hook';
         this.chapters = [];
@@ -32,12 +33,15 @@
         this.graphEdges = [];
         this.nodeById = new Map();
         this.snippetCache = new Map();
+        this.graphCache = new Map();
+        this.narratorVisible = true;
     }
 
     GitReaderApp.prototype.init = function () {
         var _this = this;
         this.renderLoadingState();
         this.bindEvents();
+        this.updateNarratorToggle();
         this.loadData().catch(function (error) {
             var message = error instanceof Error ? error.message : 'Failed to load data.';
             _this.renderErrorState(message);
@@ -46,19 +50,11 @@
 
     GitReaderApp.prototype.loadData = function () {
         var _this = this;
-        return Promise.all([
-            this.fetchJson('/gitreader/api/toc'),
-            this.fetchJson('/gitreader/api/graph')
-        ]).then(function (responses) {
-            var tocData = responses[0];
-            var graphData = responses[1];
+        return this.fetchJson('/gitreader/api/toc').then(function (tocData) {
             _this.chapters = Array.isArray(tocData.chapters) ? tocData.chapters : [];
-            _this.graphNodes = Array.isArray(graphData.nodes) ? graphData.nodes : [];
-            _this.graphEdges = Array.isArray(graphData.edges) ? graphData.edges : [];
-            _this.nodeById = new Map(_this.graphNodes.map(function (node) { return [node.id, node]; }));
             _this.renderToc();
             var defaultChapterId = _this.chapters.length > 0 ? _this.chapters[0].id : '';
-            _this.loadChapter(defaultChapterId);
+            return _this.loadChapter(defaultChapterId);
         });
     };
 
@@ -137,6 +133,12 @@
                 }
             });
         });
+
+        this.narratorToggle.addEventListener('click', function () {
+            _this.narratorVisible = !_this.narratorVisible;
+            _this.workspace.classList.toggle('is-narrator-hidden', !_this.narratorVisible);
+            _this.updateNarratorToggle();
+        });
     };
 
     GitReaderApp.prototype.renderToc = function () {
@@ -160,19 +162,49 @@
     GitReaderApp.prototype.loadChapter = function (chapterId) {
         var _this = this;
         this.setActiveToc(chapterId);
-        var nodes = this.filterNodesForChapter(chapterId);
-        var edges = this.filterEdgesForNodes(nodes);
-        var focus = this.pickFocusNode(nodes);
-        this.renderGraph(nodes, edges);
-        this.loadSymbolSnippet(focus).catch(function () {
-            _this.renderCode(focus);
-            _this.updateNarrator(focus);
+        var scope = this.getScopeForChapter(chapterId);
+        return this.loadGraphForScope(scope).then(function () {
+            var nodes = _this.filterNodesForChapter(chapterId);
+            var edges = _this.filterEdgesForNodes(nodes);
+            var focus = _this.pickFocusNode(nodes);
+            _this.renderGraph(nodes, edges);
+            _this.loadSymbolSnippet(focus).catch(function () {
+                _this.renderCode(focus);
+                _this.updateNarrator(focus);
+            });
         });
+    };
+
+    GitReaderApp.prototype.getScopeForChapter = function (chapterId) {
+        if (chapterId && chapterId.indexOf('group:') === 0) {
+            return chapterId;
+        }
+        return 'full';
+    };
+
+    GitReaderApp.prototype.loadGraphForScope = function (scope) {
+        var _this = this;
+        var cached = this.graphCache.get(scope);
+        if (cached) {
+            this.setGraphData(cached);
+            return Promise.resolve();
+        }
+        var suffix = scope && scope !== 'full' ? '?scope=' + encodeURIComponent(scope) : '';
+        return this.fetchJson('/gitreader/api/graph' + suffix).then(function (graphData) {
+            _this.graphCache.set(scope, graphData);
+            _this.setGraphData(graphData);
+        });
+    };
+
+    GitReaderApp.prototype.setGraphData = function (graphData) {
+        this.graphNodes = Array.isArray(graphData.nodes) ? graphData.nodes : [];
+        this.graphEdges = Array.isArray(graphData.edges) ? graphData.edges : [];
+        this.nodeById = new Map(this.graphNodes.map(function (node) { return [node.id, node]; }));
     };
 
     GitReaderApp.prototype.loadSymbolSnippet = function (symbol) {
         var _this = this;
-        if (!symbol.id) {
+        if (!this.canFetchSnippet(symbol)) {
             this.renderCode(symbol);
             this.updateNarrator(symbol);
             return Promise.resolve();
@@ -183,12 +215,30 @@
             this.updateNarrator(symbol);
             return Promise.resolve();
         }
-        return this.fetchJson('/gitreader/api/symbol?id=' + encodeURIComponent(symbol.id))
+        var section = this.getSnippetSection(symbol);
+        return this.fetchJson('/gitreader/api/symbol?id=' + encodeURIComponent(symbol.id) + '&section=' + section)
             .then(function (response) {
                 _this.snippetCache.set(symbol.id, response);
                 _this.renderCode(symbol, response);
                 _this.updateNarrator(symbol);
             });
+    };
+
+    GitReaderApp.prototype.getSnippetSection = function (symbol) {
+        if (symbol.kind === 'function' || symbol.kind === 'method' || symbol.kind === 'class') {
+            return 'body';
+        }
+        return 'full';
+    };
+
+    GitReaderApp.prototype.canFetchSnippet = function (symbol) {
+        if (!symbol.id) {
+            return false;
+        }
+        if (symbol.kind === 'external') {
+            return false;
+        }
+        return Boolean(symbol.location && symbol.location.path);
     };
 
     GitReaderApp.prototype.filterNodesForChapter = function (chapterId) {
@@ -269,9 +319,10 @@
     GitReaderApp.prototype.renderCode = function (symbol, snippet) {
         var summary = (snippet && snippet.summary) || symbol.summary || 'No summary yet.';
         var signature = (snippet && snippet.signature) || symbol.signature || 'signature pending';
-        var locationLabel = this.formatLocation(symbol.location, snippet && snippet.start_line, snippet && snippet.end_line);
-        var body = (snippet && snippet.snippet) || '# body not loaded yet';
+        var displayRange = this.getDisplayRange(symbol, snippet);
+        var locationLabel = this.formatLocation(symbol.location, displayRange.startLine, displayRange.endLine);
         var truncationLabel = snippet && snippet.truncated ? ' (truncated)' : '';
+        var snippetHtml = this.renderSnippetLines(snippet);
         this.codeSurface.innerHTML =
             '<article class="code-card">' +
             '<div class="code-meta">' +
@@ -285,9 +336,54 @@
             '<div class="code-signature">' + escapeHtml(signature) + '</div>' +
             '<details class="code-details" open>' +
             '<summary>Reveal body</summary>' +
-            '<pre>' + escapeHtml(body) + '</pre>' +
+            '<pre><code>' + snippetHtml + '</code></pre>' +
             '</details>' +
             '</article>';
+    };
+
+    GitReaderApp.prototype.getDisplayRange = function (symbol, snippet) {
+        if (snippet && snippet.section === 'body' && snippet.start_line) {
+            return { startLine: snippet.start_line, endLine: snippet.end_line };
+        }
+        if ((symbol.kind === 'function' || symbol.kind === 'method' || symbol.kind === 'class') &&
+            symbol.location && symbol.location.start_line) {
+            return {
+                startLine: symbol.location.start_line,
+                endLine: symbol.location.end_line || (snippet && snippet.end_line) || symbol.location.start_line
+            };
+        }
+        if (snippet && snippet.start_line) {
+            return { startLine: snippet.start_line, endLine: snippet.end_line };
+        }
+        if (symbol.location && symbol.location.start_line) {
+            return { startLine: symbol.location.start_line, endLine: symbol.location.end_line };
+        }
+        return {};
+    };
+
+    GitReaderApp.prototype.renderSnippetLines = function (snippet) {
+        var body = (snippet && snippet.snippet) || '# body not loaded yet';
+        var startLine = (snippet && snippet.start_line) || 1;
+        var highlightSet = this.buildHighlightSet((snippet && snippet.highlights) || []);
+        var lines = body.replace(/\n$/, '').split('\n');
+        return lines.map(function (line, index) {
+            var lineNumber = startLine + index;
+            var isHighlighted = highlightSet.has(lineNumber);
+            var classes = isHighlighted ? 'code-line is-highlight' : 'code-line';
+            return '<span class="' + classes + '"><span class="line-no">' + lineNumber + '</span>' + escapeHtml(line) + '</span>';
+        }).join('\n');
+    };
+
+    GitReaderApp.prototype.buildHighlightSet = function (highlights) {
+        var highlightSet = new Set();
+        highlights.forEach(function (range) {
+            var start = Math.min(range.start_line, range.end_line);
+            var end = Math.max(range.start_line, range.end_line);
+            for (var line = start; line <= end; line += 1) {
+                highlightSet.add(line);
+            }
+        });
+        return highlightSet;
     };
 
     GitReaderApp.prototype.renderGraph = function (nodes, edges) {
@@ -405,6 +501,12 @@
             return null;
         }
         return active.dataset.chapterId || null;
+    };
+
+    GitReaderApp.prototype.updateNarratorToggle = function () {
+        this.narratorToggle.classList.toggle('is-active', this.narratorVisible);
+        this.narratorToggle.setAttribute('aria-pressed', String(this.narratorVisible));
+        this.narratorToggle.textContent = this.narratorVisible ? 'Narrator' : 'Narrator Off';
     };
 
     document.addEventListener('DOMContentLoaded', function () {

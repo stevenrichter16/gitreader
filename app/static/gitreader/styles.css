@@ -71,6 +71,12 @@ body {
     gap: 8px;
 }
 
+.nav-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
 .nav-btn {
     border: 1px solid var(--line);
     background: var(--panel);
@@ -120,6 +126,25 @@ body {
 
 .workspace[data-layout="canvas"] .code-pane {
     display: none;
+}
+
+.workspace.is-narrator-hidden {
+    grid-template-columns: minmax(220px, 0.8fr) minmax(320px, 1.2fr) minmax(320px, 1fr);
+    grid-template-areas: "toc code canvas";
+}
+
+.workspace.is-narrator-hidden .narrator-pane {
+    display: none;
+}
+
+.workspace[data-layout="reader"].is-narrator-hidden {
+    grid-template-columns: minmax(220px, 0.9fr) minmax(320px, 1.4fr);
+    grid-template-areas: "toc code";
+}
+
+.workspace[data-layout="canvas"].is-narrator-hidden {
+    grid-template-columns: minmax(220px, 0.9fr) minmax(320px, 1.4fr);
+    grid-template-areas: "toc canvas";
 }
 
 .pane {
@@ -264,7 +289,7 @@ body {
 }
 
 .code-details pre {
-    white-space: pre-wrap;
+    white-space: pre;
     margin: 10px 0 0;
     padding: 12px;
     border-radius: 12px;
@@ -272,6 +297,29 @@ body {
     color: #f7f2e9;
     font-family: "IBM Plex Mono", "Courier New", monospace;
     font-size: 12px;
+    overflow-x: auto;
+}
+
+.code-details code {
+    display: block;
+}
+
+.code-line {
+    display: grid;
+    grid-template-columns: 4ch 1fr;
+    gap: 12px;
+    padding: 2px 6px;
+}
+
+.code-line.is-highlight {
+    background: rgba(208, 120, 56, 0.2);
+    border-radius: 8px;
+}
+
+.line-no {
+    color: rgba(247, 242, 233, 0.55);
+    text-align: right;
+    user-select: none;
 }
 
 .canvas-controls {
@@ -405,6 +453,25 @@ body {
             "canvas canvas"
             "narrator narrator";
     }
+
+    .workspace.is-narrator-hidden {
+        grid-template-areas:
+            "toc toc"
+            "code code"
+            "canvas canvas";
+    }
+
+    .workspace[data-layout="reader"].is-narrator-hidden {
+        grid-template-areas:
+            "toc toc"
+            "code code";
+    }
+
+    .workspace[data-layout="canvas"].is-narrator-hidden {
+        grid-template-areas:
+            "toc toc"
+            "canvas canvas";
+    }
 }
 
 @media (max-width: 820px) {
@@ -420,6 +487,13 @@ body {
     .workspace[data-layout="reader"],
     .workspace[data-layout="canvas"] {
         grid-template-columns: 1fr;
+    }
+
+    .workspace.is-narrator-hidden {
+        grid-template-areas:
+            "toc"
+            "code"
+            "canvas";
     }
 
     .nav-actions {
