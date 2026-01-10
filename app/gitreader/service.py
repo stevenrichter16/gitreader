@@ -1,4 +1,5 @@
 import hashlib
+import logging
 import os
 import time
 from typing import Optional
@@ -13,6 +14,7 @@ DEFAULT_MAX_FILE_SIZE = 512 * 1024
 DEFAULT_MAX_FILES = 5000
 DEFAULT_SNIPPET_LINES = 200
 DEFAULT_FALLBACK_CONTEXT = 40
+LOGGER = logging.getLogger(__name__)
 
 
 def get_repo_index(
@@ -21,32 +23,58 @@ def get_repo_index(
     max_file_size: int = DEFAULT_MAX_FILE_SIZE,
     max_files: Optional[int] = DEFAULT_MAX_FILES,
 ) -> RepoIndex:
+    start_time = time.perf_counter()
     repo_cache_root = os.path.join(cache_root, 'repos')
     index_cache_root = os.path.join(cache_root, 'index')
 
     os.makedirs(repo_cache_root, exist_ok=True)
+    repo_start = time.perf_counter()
     handle = ingest.ensure_repo(spec, repo_cache_root)
+    repo_elapsed = time.perf_counter() - repo_start
     scan_root = handle.root_path
     if spec.subdir:
         scan_root = os.path.join(handle.root_path, spec.subdir)
         if not os.path.isdir(scan_root):
             raise ValueError(f'Subdir not found: {spec.subdir}')
 
+    scan_start = time.perf_counter()
     scan_result = scan.scan_repo(scan_root, max_file_size=max_file_size, max_files=max_files)
+    scan_elapsed = time.perf_counter() - scan_start
     content_signature = _compute_signature(handle.commit_sha, scan_result)
 
     cached = storage.load_index(index_cache_root, handle.repo_id)
     if cached and cached.content_signature == content_signature:
+        total_elapsed = time.perf_counter() - start_time
+        LOGGER.info(
+            'gitreader index cache hit repo=%s commit=%s files=%s python=%s nodes=%s edges=%s warnings=%s skipped=%s '
+            'timing repo=%.3fs scan=%.3fs total=%.3fs',
+            handle.repo_id,
+            handle.commit_sha or 'unknown',
+            scan_result.total_files,
+            len(scan_result.python_files),
+            cached.stats.get('nodes', len(cached.nodes)),
+            cached.stats.get('edges', len(cached.edges)),
+            cached.stats.get('warnings', len(cached.warnings)),
+            len(scan_result.skipped_files),
+            repo_elapsed,
+            scan_elapsed,
+            total_elapsed,
+        )
         return cached
 
+    parse_start = time.perf_counter()
     parsed = parse_files(scan_root, scan_result.python_files)
+    parse_elapsed = time.perf_counter() - parse_start
+    graph_start = time.perf_counter()
     graph = build_graph(parsed.files)
+    graph_elapsed = time.perf_counter() - graph_start
 
     warnings = scan_result.warnings + parsed.warnings
     stats = {
         'total_files': scan_result.total_files,
         'total_bytes': scan_result.total_bytes,
         'python_files': len(scan_result.python_files),
+        'skipped_files': len(scan_result.skipped_files),
         'nodes': len(graph.nodes),
         'edges': len(graph.edges),
         'warnings': len(warnings),
@@ -65,7 +93,28 @@ def get_repo_index(
         generated_at=time.time(),
     )
 
+    storage_start = time.perf_counter()
     storage.save_index(index_cache_root, index)
+    storage_elapsed = time.perf_counter() - storage_start
+    total_elapsed = time.perf_counter() - start_time
+    LOGGER.info(
+        'gitreader index built repo=%s commit=%s files=%s python=%s nodes=%s edges=%s warnings=%s skipped=%s '
+        'timing repo=%.3fs scan=%.3fs parse=%.3fs graph=%.3fs store=%.3fs total=%.3fs',
+        handle.repo_id,
+        handle.commit_sha or 'unknown',
+        scan_result.total_files,
+        len(scan_result.python_files),
+        len(graph.nodes),
+        len(graph.edges),
+        len(warnings),
+        len(scan_result.skipped_files),
+        repo_elapsed,
+        scan_elapsed,
+        parse_elapsed,
+        graph_elapsed,
+        storage_elapsed,
+        total_elapsed,
+    )
     return index
 
 
@@ -118,6 +167,8 @@ def get_symbol_snippet(
         'highlights': highlights,
         'section': section,
         'snippet': snippet,
+        'warnings': [warning.to_dict() for warning in index.warnings],
+        'stats': dict(index.stats),
     }
 
 

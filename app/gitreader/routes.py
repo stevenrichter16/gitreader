@@ -19,7 +19,10 @@ def toc():
     try:
         repo_index = _load_index(spec)
     except ValueError as exc:
-        return jsonify({'error': str(exc)}), 400
+        return _error_response('bad_request', str(exc), status=400)
+    except Exception as exc:
+        current_app.logger.exception('gitreader toc failed')
+        return _error_response('server_error', 'Failed to load table of contents', status=500)
     if mode == 'tree':
         chapters = _build_tree_toc(repo_index)
     else:
@@ -42,7 +45,10 @@ def graph():
     try:
         repo_index = _load_index(spec)
     except ValueError as exc:
-        return jsonify({'error': str(exc)}), 400
+        return _error_response('bad_request', str(exc), status=400)
+    except Exception as exc:
+        current_app.logger.exception('gitreader graph failed')
+        return _error_response('server_error', 'Failed to load graph', status=500)
     nodes, edges = _filter_graph(repo_index, scope)
     nodes, edges = _collapse_externals(nodes, edges)
     return jsonify({
@@ -88,16 +94,26 @@ def symbol(symbol_id=None):
     if not symbol_id:
         symbol_id = request.args.get('id')
     if not symbol_id:
-        return jsonify({
-            'error': 'Missing id',
-            'hint': 'Use /gitreader/api/symbol?id=symbol:module.name or /gitreader/api/symbol/symbol:module.name',
-        }), 400
+        return _error_response(
+            'missing_id',
+            'Missing id',
+            status=400,
+            details={
+                'hint': 'Use /gitreader/api/symbol?id=symbol:module.name or /gitreader/api/symbol/symbol:module.name',
+            },
+        )
     section = request.args.get('section', 'full')
     spec = _repo_spec_from_request()
     try:
         snippet = _load_symbol_snippet(spec, symbol_id, section)
     except ValueError as exc:
-        return jsonify({'error': str(exc)}), 400
+        message = str(exc)
+        code = 'symbol_not_found' if 'not found' in message.lower() else 'bad_request'
+        status = 404 if code == 'symbol_not_found' else 400
+        return _error_response(code, message, status=status)
+    except Exception as exc:
+        current_app.logger.exception('gitreader symbol lookup failed')
+        return _error_response('server_error', 'Failed to load symbol', status=500)
     return jsonify(snippet)
 
 
@@ -122,6 +138,18 @@ def _load_index(spec: RepoSpec):
 def _load_symbol_snippet(spec: RepoSpec, symbol_id: str, section: str):
     cache_root = os.path.join(current_app.instance_path, 'gitreader')
     return get_symbol_snippet(spec, cache_root=cache_root, symbol_id=symbol_id, section=section)
+
+
+def _error_response(code: str, message: str, status: int = 400, details: dict | None = None):
+    payload = {
+        'error': {
+            'code': code,
+            'message': message,
+        },
+    }
+    if details:
+        payload['error']['details'] = details
+    return jsonify(payload), status
 
 
 def _filter_graph(repo_index, scope: str):

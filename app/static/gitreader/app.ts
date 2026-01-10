@@ -78,6 +78,8 @@ interface SymbolSnippetResponse {
     section: string;
     highlights: HighlightRange[];
     snippet: string;
+    warnings?: ApiWarning[];
+    stats?: Record<string, number>;
 }
 
 interface HighlightRange {
