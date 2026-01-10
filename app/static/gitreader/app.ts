@@ -1,5 +1,7 @@
 type NarrationMode = 'hook' | 'summary' | 'key_lines' | 'connections' | 'next';
 
+type TocMode = 'story' | 'tree';
+
 type SymbolKind = 'file' | 'class' | 'function' | 'method' | 'external' | 'blueprint';
 
 type EdgeKind = 'imports' | 'calls' | 'inherits' | 'contains' | 'blueprint';
@@ -36,6 +38,7 @@ interface ChapterSummary {
     id: string;
     title: string;
     summary: string;
+    scope?: string;
 }
 
 interface ApiWarning {
@@ -47,6 +50,7 @@ interface ApiWarning {
 
 interface ApiTocResponse {
     chapters: ChapterSummary[];
+    mode?: TocMode;
     stats?: Record<string, number>;
     warnings?: ApiWarning[];
 }
@@ -54,6 +58,7 @@ interface ApiTocResponse {
 interface ApiGraphResponse {
     nodes: SymbolNode[];
     edges: GraphEdge[];
+    scope?: string;
     stats?: Record<string, number>;
     warnings?: ApiWarning[];
 }
@@ -88,9 +93,13 @@ class GitReaderApp {
     private narratorOutput: HTMLElement;
     private modeButtons: NodeListOf<HTMLButtonElement>;
     private layoutButtons: NodeListOf<HTMLButtonElement>;
+    private tocModeButtons: NodeListOf<HTMLButtonElement>;
     private narratorToggle: HTMLButtonElement;
     private workspace: HTMLElement;
+    private tocPill: HTMLElement;
+    private tocSubtitle: HTMLElement;
     private currentMode: NarrationMode = 'hook';
+    private tocMode: TocMode = 'story';
     private chapters: ChapterSummary[] = [];
     private graphNodes: SymbolNode[] = [];
     private graphEdges: GraphEdge[] = [];
@@ -106,8 +115,11 @@ class GitReaderApp {
         this.narratorOutput = this.getElement('narrator-output');
         this.modeButtons = document.querySelectorAll<HTMLButtonElement>('.mode-btn');
         this.layoutButtons = document.querySelectorAll<HTMLButtonElement>('.nav-btn[data-layout]');
+        this.tocModeButtons = document.querySelectorAll<HTMLButtonElement>('.nav-btn[data-toc-mode]');
         this.narratorToggle = this.getElement('narrator-toggle') as HTMLButtonElement;
         this.workspace = this.getElement('workspace');
+        this.tocPill = this.getElement('toc-pill');
+        this.tocSubtitle = this.getElement('toc-subtitle');
     }
 
     init(): void {
@@ -129,9 +141,7 @@ class GitReaderApp {
     }
 
     private async loadData(): Promise<void> {
-        const tocData = await this.fetchJson<ApiTocResponse>('/gitreader/api/toc');
-        this.chapters = Array.isArray(tocData.chapters) ? tocData.chapters : [];
-        this.renderToc();
+        await this.loadToc(this.tocMode);
         const defaultChapterId = this.chapters.length > 0 ? this.chapters[0].id : '';
         await this.loadChapter(defaultChapterId);
     }
@@ -172,6 +182,15 @@ class GitReaderApp {
             if (chapterId) {
                 void this.loadChapter(chapterId);
             }
+        });
+
+        this.tocModeButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const mode = button.dataset.tocMode as TocMode | undefined;
+                if (mode) {
+                    void this.setTocMode(mode);
+                }
+            });
         });
 
         this.canvasGrid.addEventListener('click', (event) => {
@@ -217,6 +236,36 @@ class GitReaderApp {
         });
     }
 
+    private async setTocMode(mode: TocMode): Promise<void> {
+        if (this.tocMode === mode) {
+            return;
+        }
+        this.tocList.innerHTML = '<li class="toc-item"><div class="toc-title">Loading chapters</div><p class="toc-summary">Switching TOC view...</p></li>';
+        await this.loadToc(mode);
+        const defaultChapterId = this.chapters.length > 0 ? this.chapters[0].id : '';
+        await this.loadChapter(defaultChapterId);
+    }
+
+    private async loadToc(mode: TocMode): Promise<void> {
+        const suffix = mode ? `?mode=${encodeURIComponent(mode)}` : '';
+        const tocData = await this.fetchJson<ApiTocResponse>(`/gitreader/api/toc${suffix}`);
+        this.chapters = Array.isArray(tocData.chapters) ? tocData.chapters : [];
+        this.tocMode = tocData.mode ?? mode;
+        this.updateTocModeUi();
+        this.renderToc();
+    }
+
+    private updateTocModeUi(): void {
+        this.tocModeButtons.forEach((button) => {
+            button.classList.toggle('is-active', button.dataset.tocMode === this.tocMode);
+        });
+        const isStory = this.tocMode === 'story';
+        this.tocPill.textContent = isStory ? 'story' : 'file tree';
+        this.tocSubtitle.textContent = isStory
+            ? 'Follow the story arc of the repository.'
+            : 'Browse the repository by folder.';
+    }
+
     private renderToc(): void {
         this.tocList.innerHTML = '';
         if (this.chapters.length === 0) {
@@ -227,6 +276,9 @@ class GitReaderApp {
             const item = document.createElement('li');
             item.className = 'toc-item';
             item.dataset.chapterId = chapter.id;
+            if (chapter.scope) {
+                item.dataset.scope = chapter.scope;
+            }
             item.innerHTML = `
                 <div class="toc-title">${this.escapeHtml(chapter.title)}</div>
                 <p class="toc-summary">${this.escapeHtml(chapter.summary)}</p>
@@ -237,7 +289,8 @@ class GitReaderApp {
 
     private async loadChapter(chapterId: string): Promise<void> {
         this.setActiveToc(chapterId);
-        const scope = this.getScopeForChapter(chapterId);
+        const chapter = this.chapters.find((entry) => entry.id === chapterId);
+        const scope = chapter?.scope ?? this.getScopeForChapter(chapterId);
         await this.loadGraphForScope(scope);
         const nodes = this.filterNodesForChapter(chapterId);
         const edges = this.filterEdgesForNodes(nodes);
@@ -250,7 +303,7 @@ class GitReaderApp {
     }
 
     private getScopeForChapter(chapterId: string): string {
-        if (chapterId && chapterId.startsWith('group:')) {
+        if (chapterId && (chapterId.startsWith('group:') || chapterId.startsWith('story:'))) {
             return chapterId;
         }
         return 'full';

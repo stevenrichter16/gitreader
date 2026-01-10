@@ -77,6 +77,13 @@ body {
     align-items: center;
 }
 
+.nav-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted-ink);
+}
+
 .nav-btn {
     border: 1px solid var(--line);
     background: var(--panel);

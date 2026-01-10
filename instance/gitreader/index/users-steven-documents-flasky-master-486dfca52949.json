@@ -1,6 +1,6 @@
 {
-  "commit_sha": "ba828640cde1f299170288a220cbc4fb8f3c43ec",
-  "content_signature": "41f497f74320078723615f652bdeabaca3e610f1",
+  "commit_sha": "f805bbd78df8df7d6603be17044c793d3d84e995",
+  "content_signature": "3ff56e0609fea53a73960be0990babde7de0821d",
   "edges": [
     {
       "confidence": "high",
@@ -1099,6 +1099,42 @@
       "kind": "contains",
       "source": "file:app/gitreader/routes.py",
       "target": "symbol:app.gitreader.routes._filter_graph"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
+      "source": "file:app/gitreader/routes.py",
+      "target": "symbol:app.gitreader.routes._apply_scope_paths"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
+      "source": "file:app/gitreader/routes.py",
+      "target": "symbol:app.gitreader.routes._collapse_externals"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
+      "source": "file:app/gitreader/routes.py",
+      "target": "symbol:app.gitreader.routes._group_paths"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
+      "source": "file:app/gitreader/routes.py",
+      "target": "symbol:app.gitreader.routes._build_tree_toc"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
+      "source": "file:app/gitreader/routes.py",
+      "target": "symbol:app.gitreader.routes._build_story_toc"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
+      "source": "file:app/gitreader/routes.py",
+      "target": "symbol:app.gitreader.routes._story_scope_paths"
     },
     {
       "confidence": "high",
@@ -7995,6 +8031,12 @@
       "target": "symbol:app.gitreader.routes._repo_spec_from_request"
     },
     {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes.toc",
+      "target": "external:get"
+    },
+    {
       "confidence": "medium",
       "kind": "calls",
       "source": "symbol:app.gitreader.routes.toc",
@@ -8005,6 +8047,24 @@
       "kind": "calls",
       "source": "symbol:app.gitreader.routes.toc",
       "target": "symbol:app.gitreader.routes._load_index"
+    },
+    {
+      "confidence": "high",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes.toc",
+      "target": "symbol:app.gitreader.routes._build_tree_toc"
+    },
+    {
+      "confidence": "high",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes.toc",
+      "target": "symbol:app.gitreader.routes._build_story_toc"
+    },
+    {
+      "confidence": "high",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes.toc",
+      "target": "symbol:app.gitreader.routes._build_tree_toc"
     },
     {
       "confidence": "medium",
@@ -8047,6 +8107,12 @@
       "kind": "calls",
       "source": "symbol:app.gitreader.routes.graph",
       "target": "symbol:app.gitreader.routes._filter_graph"
+    },
+    {
+      "confidence": "high",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes.graph",
+      "target": "symbol:app.gitreader.routes._collapse_externals"
     },
     {
       "confidence": "medium",
@@ -8250,25 +8316,19 @@
       "confidence": "low",
       "kind": "calls",
       "source": "symbol:app.gitreader.routes._filter_graph",
-      "target": "external:set"
+      "target": "external:scope.startswith"
     },
     {
-      "confidence": "low",
+      "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.gitreader.routes._filter_graph",
-      "target": "external:values"
+      "target": "symbol:app.gitreader.routes._apply_scope_paths"
     },
     {
-      "confidence": "low",
+      "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.gitreader.routes._filter_graph",
-      "target": "external:set"
-    },
-    {
-      "confidence": "low",
-      "kind": "calls",
-      "source": "symbol:app.gitreader.routes._filter_graph",
-      "target": "external:replace"
+      "target": "symbol:app.gitreader.routes._group_paths"
     },
     {
       "confidence": "low",
@@ -8289,6 +8349,36 @@
       "target": "external:list"
     },
     {
+      "confidence": "high",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "symbol:app.gitreader.routes._story_scope_paths"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:story_paths.get"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:list"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:list"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:values"
+    },
+    {
       "confidence": "low",
       "kind": "calls",
       "source": "symbol:app.gitreader.routes._filter_graph",
@@ -8298,7 +8388,7 @@
       "confidence": "low",
       "kind": "calls",
       "source": "symbol:app.gitreader.routes._filter_graph",
-      "target": "external:normalized.startswith"
+      "target": "external:set"
     },
     {
       "confidence": "low",
@@ -8316,55 +8406,487 @@
       "confidence": "low",
       "kind": "calls",
       "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:values"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._filter_graph",
+      "target": "external:values"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._apply_scope_paths",
+      "target": "external:set"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._apply_scope_paths",
+      "target": "external:values"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._apply_scope_paths",
+      "target": "external:set"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._apply_scope_paths",
+      "target": "external:replace"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._apply_scope_paths",
+      "target": "external:allowed.add"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._apply_scope_paths",
+      "target": "external:list"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._apply_scope_paths",
+      "target": "external:list"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._apply_scope_paths",
       "target": "external:get"
     },
     {
       "confidence": "low",
       "kind": "calls",
-      "source": "symbol:app.gitreader.routes._filter_graph",
+      "source": "symbol:app.gitreader.routes._apply_scope_paths",
       "target": "external:items"
     },
     {
       "confidence": "low",
       "kind": "calls",
-      "source": "symbol:app.gitreader.routes._filter_graph",
+      "source": "symbol:app.gitreader.routes._apply_scope_paths",
       "target": "external:values"
     },
     {
       "confidence": "low",
       "kind": "calls",
-      "source": "symbol:app.gitreader.routes._filter_graph",
-      "target": "external:allowed.add"
-    },
-    {
-      "confidence": "low",
-      "kind": "calls",
-      "source": "symbol:app.gitreader.routes._filter_graph",
-      "target": "external:allowed.add"
-    },
-    {
-      "confidence": "low",
-      "kind": "calls",
-      "source": "symbol:app.gitreader.routes._filter_graph",
-      "target": "external:values"
-    },
-    {
-      "confidence": "low",
-      "kind": "calls",
-      "source": "symbol:app.gitreader.routes._filter_graph",
+      "source": "symbol:app.gitreader.routes._apply_scope_paths",
       "target": "external:external_extra.add"
     },
     {
       "confidence": "low",
       "kind": "calls",
-      "source": "symbol:app.gitreader.routes._filter_graph",
+      "source": "symbol:app.gitreader.routes._apply_scope_paths",
       "target": "external:get"
     },
     {
       "confidence": "low",
       "kind": "calls",
-      "source": "symbol:app.gitreader.routes._filter_graph",
+      "source": "symbol:app.gitreader.routes._apply_scope_paths",
       "target": "external:external_extra.add"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:set"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:grouped_externals.items"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:retained_nodes.extend"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:seen_edges.add"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:new_edges.append"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:node_by_id.get"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:file_path_for"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:ensure_group_node"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:node_by_id.get"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:len"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:grouped_nodes.values"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:app.gitreader.models.GraphEdge"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:app.gitreader.models.SymbolNode"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:add_edge"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:add_edge"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:add_edge"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:add"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:add_edge"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:add_edge"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:basename"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:app.gitreader.models.SourceLocation"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:grouped_externals.setdefault"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._collapse_externals",
+      "target": "external:set"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._group_paths",
+      "target": "external:set"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._group_paths",
+      "target": "external:values"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._group_paths",
+      "target": "external:replace"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._group_paths",
+      "target": "external:normalized.startswith"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._group_paths",
+      "target": "external:allowed_paths.add"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._group_paths",
+      "target": "external:allowed_paths.add"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._build_tree_toc",
+      "target": "external:values"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._build_tree_toc",
+      "target": "external:sorted"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._build_tree_toc",
+      "target": "external:replace"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._build_tree_toc",
+      "target": "external:normalized.split"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._build_tree_toc",
+      "target": "external:groups.setdefault"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._build_tree_toc",
+      "target": "external:groups.items"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._build_tree_toc",
+      "target": "external:toc.append"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._build_tree_toc",
+      "target": "external:len"
+    },
+    {
+      "confidence": "high",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._build_story_toc",
+      "target": "symbol:app.gitreader.routes._story_scope_paths"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._build_story_toc",
+      "target": "external:paths_by_scope.get"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._build_story_toc",
+      "target": "external:chapters.append"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._build_story_toc",
+      "target": "external:set"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._build_story_toc",
+      "target": "external:len"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._build_story_toc",
+      "target": "external:len"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:set"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:values"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:set"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:values"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:set"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:set"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:reserve"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:reserve"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:reserve"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:reserve"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:file_paths.add"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:assigned.update"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:replace"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:basename"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:route_paths.add"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:route_paths.add"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:items"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:basename"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:basename"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:replace"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:get"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:template_paths.add"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._story_scope_paths",
+      "target": "external:replace"
     },
     {
       "confidence": "low",
@@ -13131,7 +13653,7 @@
       "target": "external:str"
     }
   ],
-  "generated_at": 1768082564.848289,
+  "generated_at": 1768084396.378719,
   "nodes": [
     {
       "id": "file:flasky.py",
@@ -16423,7 +16945,7 @@
       "kind": "function",
       "location": {
         "end_col": 6,
-        "end_line": 26,
+        "end_line": 35,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
         "start_line": 16
@@ -16438,10 +16960,10 @@
       "kind": "function",
       "location": {
         "end_col": 6,
-        "end_line": 44,
+        "end_line": 54,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 30
+        "start_line": 39
       },
       "module": "app.gitreader.routes",
       "name": "graph",
@@ -16453,10 +16975,10 @@
       "kind": "function",
       "location": {
         "end_col": 29,
-        "end_line": 72,
+        "end_line": 82,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 48
+        "start_line": 58
       },
       "module": "app.gitreader.routes",
       "name": "narrate",
@@ -16468,10 +16990,10 @@
       "kind": "function",
       "location": {
         "end_col": 27,
-        "end_line": 91,
+        "end_line": 101,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 77
+        "start_line": 87
       },
       "module": "app.gitreader.routes",
       "name": "symbol",
@@ -16483,10 +17005,10 @@
       "kind": "function",
       "location": {
         "end_col": 5,
-        "end_line": 104,
+        "end_line": 114,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 94
+        "start_line": 104
       },
       "module": "app.gitreader.routes",
       "name": "_repo_spec_from_request",
@@ -16498,10 +17020,10 @@
       "kind": "function",
       "location": {
         "end_col": 54,
-        "end_line": 109,
+        "end_line": 119,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 107
+        "start_line": 117
       },
       "module": "app.gitreader.routes",
       "name": "_load_index",
@@ -16513,10 +17035,10 @@
       "kind": "function",
       "location": {
         "end_col": 96,
-        "end_line": 114,
+        "end_line": 124,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 112
+        "start_line": 122
       },
       "module": "app.gitreader.routes",
       "name": "_load_symbol_snippet",
@@ -16527,11 +17049,11 @@
       "id": "symbol:app.gitreader.routes._filter_graph",
       "kind": "function",
       "location": {
-        "end_col": 23,
-        "end_line": 147,
+        "end_col": 56,
+        "end_line": 140,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 117
+        "start_line": 127
       },
       "module": "app.gitreader.routes",
       "name": "_filter_graph",
@@ -16539,14 +17061,104 @@
       "summary": ""
     },
     {
+      "id": "symbol:app.gitreader.routes._apply_scope_paths",
+      "kind": "function",
+      "location": {
+        "end_col": 23,
+        "end_line": 167,
+        "path": "app/gitreader/routes.py",
+        "start_col": 0,
+        "start_line": 143
+      },
+      "module": "app.gitreader.routes",
+      "name": "_apply_scope_paths",
+      "signature": "def _apply_scope_paths(repo_index, allowed_paths: set[str])",
+      "summary": ""
+    },
+    {
+      "id": "symbol:app.gitreader.routes._collapse_externals",
+      "kind": "function",
+      "location": {
+        "end_col": 36,
+        "end_line": 241,
+        "path": "app/gitreader/routes.py",
+        "start_col": 0,
+        "start_line": 170
+      },
+      "module": "app.gitreader.routes",
+      "name": "_collapse_externals",
+      "signature": "def _collapse_externals(nodes: list[SymbolNode], edges: list[GraphEdge])",
+      "summary": ""
+    },
+    {
+      "id": "symbol:app.gitreader.routes._group_paths",
+      "kind": "function",
+      "location": {
+        "end_col": 24,
+        "end_line": 256,
+        "path": "app/gitreader/routes.py",
+        "start_col": 0,
+        "start_line": 244
+      },
+      "module": "app.gitreader.routes",
+      "name": "_group_paths",
+      "signature": "def _group_paths(repo_index, group: str) -> set[str]",
+      "summary": ""
+    },
+    {
+      "id": "symbol:app.gitreader.routes._build_tree_toc",
+      "kind": "function",
+      "location": {
+        "end_col": 14,
+        "end_line": 279,
+        "path": "app/gitreader/routes.py",
+        "start_col": 0,
+        "start_line": 259
+      },
+      "module": "app.gitreader.routes",
+      "name": "_build_tree_toc",
+      "signature": "def _build_tree_toc(repo_index)",
+      "summary": ""
+    },
+    {
+      "id": "symbol:app.gitreader.routes._build_story_toc",
+      "kind": "function",
+      "location": {
+        "end_col": 19,
+        "end_line": 303,
+        "path": "app/gitreader/routes.py",
+        "start_col": 0,
+        "start_line": 282
+      },
+      "module": "app.gitreader.routes",
+      "name": "_build_story_toc",
+      "signature": "def _build_story_toc(repo_index)",
+      "summary": ""
+    },
+    {
+      "id": "symbol:app.gitreader.routes._story_scope_paths",
+      "kind": "function",
+      "location": {
+        "end_col": 5,
+        "end_line": 359,
+        "path": "app/gitreader/routes.py",
+        "start_col": 0,
+        "start_line": 306
+      },
+      "module": "app.gitreader.routes",
+      "name": "_story_scope_paths",
+      "signature": "def _story_scope_paths(repo_index)",
+      "summary": ""
+    },
+    {
       "id": "symbol:app.gitreader.routes._default_repo_root",
       "kind": "function",
       "location": {
         "end_col": 20,
-        "end_line": 156,
+        "end_line": 368,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 150
+        "start_line": 362
       },
       "module": "app.gitreader.routes",
       "name": "_default_repo_root",
@@ -19696,21 +20308,21 @@
       "summary": ""
     },
     {
-      "id": "external:set",
-      "kind": "external",
-      "name": "set",
-      "summary": ""
-    },
-    {
       "id": "external:scope.startswith",
       "kind": "external",
       "name": "scope.startswith",
       "summary": ""
     },
     {
-      "id": "external:normalized.startswith",
+      "id": "external:story_paths.get",
       "kind": "external",
-      "name": "normalized.startswith",
+      "name": "story_paths.get",
+      "summary": ""
+    },
+    {
+      "id": "external:set",
+      "kind": "external",
+      "name": "set",
       "summary": ""
     },
     {
@@ -19726,9 +20338,129 @@
       "summary": ""
     },
     {
+      "id": "external:grouped_externals.items",
+      "kind": "external",
+      "name": "grouped_externals.items",
+      "summary": ""
+    },
+    {
+      "id": "external:retained_nodes.extend",
+      "kind": "external",
+      "name": "retained_nodes.extend",
+      "summary": ""
+    },
+    {
+      "id": "external:seen_edges.add",
+      "kind": "external",
+      "name": "seen_edges.add",
+      "summary": ""
+    },
+    {
+      "id": "external:new_edges.append",
+      "kind": "external",
+      "name": "new_edges.append",
+      "summary": ""
+    },
+    {
+      "id": "external:node_by_id.get",
+      "kind": "external",
+      "name": "node_by_id.get",
+      "summary": ""
+    },
+    {
+      "id": "external:file_path_for",
+      "kind": "external",
+      "name": "file_path_for",
+      "summary": ""
+    },
+    {
+      "id": "external:ensure_group_node",
+      "kind": "external",
+      "name": "ensure_group_node",
+      "summary": ""
+    },
+    {
+      "id": "external:grouped_nodes.values",
+      "kind": "external",
+      "name": "grouped_nodes.values",
+      "summary": ""
+    },
+    {
+      "id": "external:add_edge",
+      "kind": "external",
+      "name": "add_edge",
+      "summary": ""
+    },
+    {
       "id": "external:basename",
       "kind": "external",
       "name": "basename",
+      "summary": ""
+    },
+    {
+      "id": "external:grouped_externals.setdefault",
+      "kind": "external",
+      "name": "grouped_externals.setdefault",
+      "summary": ""
+    },
+    {
+      "id": "external:normalized.startswith",
+      "kind": "external",
+      "name": "normalized.startswith",
+      "summary": ""
+    },
+    {
+      "id": "external:allowed_paths.add",
+      "kind": "external",
+      "name": "allowed_paths.add",
+      "summary": ""
+    },
+    {
+      "id": "external:normalized.split",
+      "kind": "external",
+      "name": "normalized.split",
+      "summary": ""
+    },
+    {
+      "id": "external:paths_by_scope.get",
+      "kind": "external",
+      "name": "paths_by_scope.get",
+      "summary": ""
+    },
+    {
+      "id": "external:chapters.append",
+      "kind": "external",
+      "name": "chapters.append",
+      "summary": ""
+    },
+    {
+      "id": "external:reserve",
+      "kind": "external",
+      "name": "reserve",
+      "summary": ""
+    },
+    {
+      "id": "external:file_paths.add",
+      "kind": "external",
+      "name": "file_paths.add",
+      "summary": ""
+    },
+    {
+      "id": "external:assigned.update",
+      "kind": "external",
+      "name": "assigned.update",
+      "summary": ""
+    },
+    {
+      "id": "external:route_paths.add",
+      "kind": "external",
+      "name": "route_paths.add",
+      "summary": ""
+    },
+    {
+      "id": "external:template_paths.add",
+      "kind": "external",
+      "name": "template_paths.add",
       "summary": ""
     },
     {
@@ -20251,10 +20983,10 @@
   "repo_id": "users-steven-documents-flasky-master-486dfca52949",
   "root_path": "/Users/steven/Documents/flasky-master",
   "stats": {
-    "edges": 2188,
-    "nodes": 691,
+    "edges": 2275,
+    "nodes": 717,
     "python_files": 48,
-    "total_bytes": 243098,
+    "total_bytes": 256258,
     "total_files": 99,
     "warnings": 1
   },

@@ -25,9 +25,13 @@
         this.narratorOutput = getElement('narrator-output');
         this.modeButtons = document.querySelectorAll('.mode-btn');
         this.layoutButtons = document.querySelectorAll('.nav-btn[data-layout]');
+        this.tocModeButtons = document.querySelectorAll('.nav-btn[data-toc-mode]');
         this.narratorToggle = getElement('narrator-toggle');
         this.workspace = getElement('workspace');
+        this.tocPill = getElement('toc-pill');
+        this.tocSubtitle = getElement('toc-subtitle');
         this.currentMode = 'hook';
+        this.tocMode = 'story';
         this.chapters = [];
         this.graphNodes = [];
         this.graphEdges = [];
@@ -50,9 +54,7 @@
 
     GitReaderApp.prototype.loadData = function () {
         var _this = this;
-        return this.fetchJson('/gitreader/api/toc').then(function (tocData) {
-            _this.chapters = Array.isArray(tocData.chapters) ? tocData.chapters : [];
-            _this.renderToc();
+        return this.loadToc(this.tocMode).then(function () {
             var defaultChapterId = _this.chapters.length > 0 ? _this.chapters[0].id : '';
             return _this.loadChapter(defaultChapterId);
         });
@@ -98,6 +100,15 @@
             }
         });
 
+        this.tocModeButtons.forEach(function (button) {
+            button.addEventListener('click', function () {
+                var mode = button.dataset.tocMode;
+                if (mode) {
+                    _this.setTocMode(mode);
+                }
+            });
+        });
+
         this.canvasGrid.addEventListener('click', function (event) {
             var target = event.target.closest('.canvas-node');
             if (!target) {
@@ -141,6 +152,41 @@
         });
     };
 
+    GitReaderApp.prototype.setTocMode = function (mode) {
+        var _this = this;
+        if (this.tocMode === mode) {
+            return Promise.resolve();
+        }
+        this.tocList.innerHTML = '<li class="toc-item"><div class="toc-title">Loading chapters</div><p class="toc-summary">Switching TOC view...</p></li>';
+        return this.loadToc(mode).then(function () {
+            var defaultChapterId = _this.chapters.length > 0 ? _this.chapters[0].id : '';
+            return _this.loadChapter(defaultChapterId);
+        });
+    };
+
+    GitReaderApp.prototype.loadToc = function (mode) {
+        var _this = this;
+        var suffix = mode ? '?mode=' + encodeURIComponent(mode) : '';
+        return this.fetchJson('/gitreader/api/toc' + suffix).then(function (tocData) {
+            _this.chapters = Array.isArray(tocData.chapters) ? tocData.chapters : [];
+            _this.tocMode = tocData.mode || mode;
+            _this.updateTocModeUi();
+            _this.renderToc();
+        });
+    };
+
+    GitReaderApp.prototype.updateTocModeUi = function () {
+        var _this = this;
+        this.tocModeButtons.forEach(function (button) {
+            button.classList.toggle('is-active', button.dataset.tocMode === _this.tocMode);
+        });
+        var isStory = this.tocMode === 'story';
+        this.tocPill.textContent = isStory ? 'story' : 'file tree';
+        this.tocSubtitle.textContent = isStory
+            ? 'Follow the story arc of the repository.'
+            : 'Browse the repository by folder.';
+    };
+
     GitReaderApp.prototype.renderToc = function () {
         var _this = this;
         this.tocList.innerHTML = '';
@@ -152,6 +198,9 @@
             var item = document.createElement('li');
             item.className = 'toc-item';
             item.dataset.chapterId = chapter.id;
+            if (chapter.scope) {
+                item.dataset.scope = chapter.scope;
+            }
             item.innerHTML =
                 '<div class="toc-title">' + escapeHtml(chapter.title) + '</div>' +
                 '<p class="toc-summary">' + escapeHtml(chapter.summary) + '</p>';
@@ -162,7 +211,8 @@
     GitReaderApp.prototype.loadChapter = function (chapterId) {
         var _this = this;
         this.setActiveToc(chapterId);
-        var scope = this.getScopeForChapter(chapterId);
+        var chapter = this.chapters.find(function (entry) { return entry.id === chapterId; });
+        var scope = (chapter && chapter.scope) || this.getScopeForChapter(chapterId);
         return this.loadGraphForScope(scope).then(function () {
             var nodes = _this.filterNodesForChapter(chapterId);
             var edges = _this.filterEdgesForNodes(nodes);
@@ -176,7 +226,7 @@
     };
 
     GitReaderApp.prototype.getScopeForChapter = function (chapterId) {
-        if (chapterId && chapterId.indexOf('group:') === 0) {
+        if (chapterId && (chapterId.indexOf('group:') === 0 || chapterId.indexOf('story:') === 0)) {
             return chapterId;
         }
         return 'full';

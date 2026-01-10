@@ -20,6 +20,11 @@
           <button class="nav-btn" data-layout="canvas">Canvas</button>
           <button class="nav-btn is-active" data-layout="both">Both</button>
         </div>
+        <div class="nav-group" role="group" aria-label="TOC mode">
+          <span class="nav-label">TOC</span>
+          <button class="nav-btn is-active" data-toc-mode="story">Story</button>
+          <button class="nav-btn" data-toc-mode="tree">File tree</button>
+        </div>
         <div class="nav-group" role="group" aria-label="Panels">
           <button class="nav-btn is-active" id="narrator-toggle" aria-pressed="true">Narrator</button>
         </div>
@@ -30,9 +35,9 @@
       <section class="pane toc-pane" id="toc" aria-label="Table of contents">
         <div class="pane-header">
           <h2>Table of Contents</h2>
-          <span class="pill">chapters</span>
+          <span class="pill" id="toc-pill">story</span>
         </div>
-        <p class="pane-subtitle">Follow the story arc of the repository.</p>
+        <p class="pane-subtitle" id="toc-subtitle">Follow the story arc of the repository.</p>
         <ul class="toc-list" id="toc-list"></ul>
       </section>
 
