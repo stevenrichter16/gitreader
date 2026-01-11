@@ -1,6 +1,6 @@
 {
-  "commit_sha": "f805bbd78df8df7d6603be17044c793d3d84e995",
-  "content_signature": "3ff56e0609fea53a73960be0990babde7de0821d",
+  "commit_sha": "5ae00d04d0089b4e5f185d4be077111c04953ea8",
+  "content_signature": "de0445504ac8b4e07e6b64a6cb0b37650b71e0fb",
   "edges": [
     {
       "confidence": "high",
@@ -241,6 +241,36 @@
       "kind": "contains",
       "source": "file:app/fake.py",
       "target": "symbol:app.fake.posts"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
+      "source": "file:app/models.py",
+      "target": "symbol:app.models._get_serializer"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
+      "source": "file:app/models.py",
+      "target": "symbol:app.models._encode_token"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
+      "source": "file:app/models.py",
+      "target": "symbol:app.models._decode_token"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
+      "source": "file:app/models.py",
+      "target": "symbol:app.models._build_payload"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
+      "source": "file:app/models.py",
+      "target": "symbol:app.models._is_expired"
     },
     {
       "confidence": "high",
@@ -1098,6 +1128,12 @@
       "confidence": "high",
       "kind": "contains",
       "source": "file:app/gitreader/routes.py",
+      "target": "symbol:app.gitreader.routes._error_response"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
+      "source": "file:app/gitreader/routes.py",
       "target": "symbol:app.gitreader.routes._filter_graph"
     },
     {
@@ -1447,6 +1483,48 @@
       "kind": "contains",
       "source": "file:app/main/views.py",
       "target": "symbol:app.main.views.moderate_disable"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
+      "source": "file:tests/test_gitreader_graph.py",
+      "target": "symbol:tests.test_gitreader_graph.ModulePathTests"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
+      "source": "symbol:tests.test_gitreader_graph.ModulePathTests",
+      "target": "symbol:tests.test_gitreader_graph.ModulePathTests.test_module_path_from_file"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
+      "source": "file:tests/test_gitreader_graph.py",
+      "target": "symbol:tests.test_gitreader_graph.GraphResolutionTests"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests",
+      "target": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
+      "source": "file:tests/test_gitreader_graph.py",
+      "target": "symbol:tests.test_gitreader_graph.IntegrationGraphTests"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests",
+      "target": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_flasky_index_contains_expected_nodes"
+    },
+    {
+      "confidence": "high",
+      "kind": "contains",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests",
+      "target": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_messy_repo_with_syntax_error"
     },
     {
       "confidence": "high",
@@ -2010,13 +2088,13 @@
       "confidence": "low",
       "kind": "imports",
       "source": "file:app/models.py",
-      "target": "external:werkzeug.security"
+      "target": "external:time"
     },
     {
       "confidence": "low",
       "kind": "imports",
       "source": "file:app/models.py",
-      "target": "external:itsdangerous"
+      "target": "external:werkzeug.security"
     },
     {
       "confidence": "low",
@@ -2239,6 +2317,12 @@
       "kind": "imports",
       "source": "file:app/gitreader/service.py",
       "target": "external:hashlib"
+    },
+    {
+      "confidence": "low",
+      "kind": "imports",
+      "source": "file:app/gitreader/service.py",
+      "target": "external:logging"
     },
     {
       "confidence": "low",
@@ -2739,12 +2823,6 @@
       "target": "external:flask_login"
     },
     {
-      "confidence": "low",
-      "kind": "imports",
-      "source": "file:app/main/views.py",
-      "target": "external:flask_sqlalchemy"
-    },
-    {
       "confidence": "high",
       "kind": "imports",
       "source": "file:app/main/views.py",
@@ -2773,6 +2851,48 @@
       "kind": "imports",
       "source": "file:app/main/views.py",
       "target": "file:app/decorators.py"
+    },
+    {
+      "confidence": "low",
+      "kind": "imports",
+      "source": "file:tests/test_gitreader_graph.py",
+      "target": "external:os"
+    },
+    {
+      "confidence": "low",
+      "kind": "imports",
+      "source": "file:tests/test_gitreader_graph.py",
+      "target": "external:tempfile"
+    },
+    {
+      "confidence": "low",
+      "kind": "imports",
+      "source": "file:tests/test_gitreader_graph.py",
+      "target": "external:unittest"
+    },
+    {
+      "confidence": "high",
+      "kind": "imports",
+      "source": "file:tests/test_gitreader_graph.py",
+      "target": "file:app/gitreader/graph.py"
+    },
+    {
+      "confidence": "high",
+      "kind": "imports",
+      "source": "file:tests/test_gitreader_graph.py",
+      "target": "file:app/gitreader/models.py"
+    },
+    {
+      "confidence": "high",
+      "kind": "imports",
+      "source": "file:tests/test_gitreader_graph.py",
+      "target": "file:app/gitreader/parse_python.py"
+    },
+    {
+      "confidence": "high",
+      "kind": "imports",
+      "source": "file:tests/test_gitreader_graph.py",
+      "target": "file:app/gitreader/service.py"
     },
     {
       "confidence": "low",
@@ -2815,12 +2935,6 @@
       "kind": "imports",
       "source": "file:tests/test_selenium.py",
       "target": "external:unittest"
-    },
-    {
-      "confidence": "low",
-      "kind": "imports",
-      "source": "file:tests/test_selenium.py",
-      "target": "external:selenium"
     },
     {
       "confidence": "high",
@@ -3157,6 +3271,12 @@
       "kind": "calls",
       "source": "symbol:config.ProductionConfig.init_app",
       "target": "external:addHandler"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:config.ProductionConfig.init_app",
+      "target": "external:RuntimeError"
     },
     {
       "confidence": "low",
@@ -4174,6 +4294,84 @@
     },
     {
       "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.models._get_serializer",
+      "target": "external:Serializer"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.models._encode_token",
+      "target": "external:dumps"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.models._encode_token",
+      "target": "external:isinstance"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.models._encode_token",
+      "target": "external:token.decode"
+    },
+    {
+      "confidence": "high",
+      "kind": "calls",
+      "source": "symbol:app.models._encode_token",
+      "target": "symbol:app.models._get_serializer"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.models._decode_token",
+      "target": "external:isinstance"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.models._decode_token",
+      "target": "external:token.decode"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.models._decode_token",
+      "target": "external:loads"
+    },
+    {
+      "confidence": "high",
+      "kind": "calls",
+      "source": "symbol:app.models._decode_token",
+      "target": "symbol:app.models._get_serializer"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.models._build_payload",
+      "target": "external:dict"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:app.models._build_payload",
+      "target": "external:time"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.models._is_expired",
+      "target": "external:payload.get"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:app.models._is_expired",
+      "target": "external:time"
+    },
+    {
+      "confidence": "low",
       "kind": "inherits",
       "source": "symbol:app.models.Role",
       "target": "external:Model"
@@ -4359,28 +4557,22 @@
       "target": "external:werkzeug.security.check_password_hash"
     },
     {
-      "confidence": "medium",
+      "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.models.User.generate_confirmation_token",
-      "target": "external:itsdangerous.TimedJSONWebSignatureSerializer"
+      "target": "symbol:app.models._build_payload"
     },
     {
-      "confidence": "low",
+      "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.models.User.generate_confirmation_token",
-      "target": "external:decode"
+      "target": "symbol:app.models._encode_token"
     },
     {
-      "confidence": "low",
-      "kind": "calls",
-      "source": "symbol:app.models.User.generate_confirmation_token",
-      "target": "external:s.dumps"
-    },
-    {
-      "confidence": "medium",
+      "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.models.User.confirm",
-      "target": "external:itsdangerous.TimedJSONWebSignatureSerializer"
+      "target": "symbol:app.models._decode_token"
     },
     {
       "confidence": "low",
@@ -4389,10 +4581,10 @@
       "target": "external:add"
     },
     {
-      "confidence": "low",
+      "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.models.User.confirm",
-      "target": "external:s.loads"
+      "target": "symbol:app.models._is_expired"
     },
     {
       "confidence": "low",
@@ -4401,34 +4593,22 @@
       "target": "external:data.get"
     },
     {
-      "confidence": "low",
-      "kind": "calls",
-      "source": "symbol:app.models.User.confirm",
-      "target": "external:token.encode"
-    },
-    {
-      "confidence": "medium",
+      "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.models.User.generate_reset_token",
-      "target": "external:itsdangerous.TimedJSONWebSignatureSerializer"
+      "target": "symbol:app.models._build_payload"
     },
     {
-      "confidence": "low",
+      "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.models.User.generate_reset_token",
-      "target": "external:decode"
+      "target": "symbol:app.models._encode_token"
     },
     {
-      "confidence": "low",
-      "kind": "calls",
-      "source": "symbol:app.models.User.generate_reset_token",
-      "target": "external:s.dumps"
-    },
-    {
-      "confidence": "medium",
+      "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.models.User.reset_password",
-      "target": "external:itsdangerous.TimedJSONWebSignatureSerializer"
+      "target": "symbol:app.models._decode_token"
     },
     {
       "confidence": "low",
@@ -4443,10 +4623,10 @@
       "target": "external:add"
     },
     {
-      "confidence": "low",
+      "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.models.User.reset_password",
-      "target": "external:s.loads"
+      "target": "symbol:app.models._is_expired"
     },
     {
       "confidence": "low",
@@ -4455,34 +4635,22 @@
       "target": "external:data.get"
     },
     {
-      "confidence": "low",
-      "kind": "calls",
-      "source": "symbol:app.models.User.reset_password",
-      "target": "external:token.encode"
-    },
-    {
-      "confidence": "medium",
+      "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.models.User.generate_email_change_token",
-      "target": "external:itsdangerous.TimedJSONWebSignatureSerializer"
+      "target": "symbol:app.models._build_payload"
     },
     {
-      "confidence": "low",
+      "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.models.User.generate_email_change_token",
-      "target": "external:decode"
+      "target": "symbol:app.models._encode_token"
     },
     {
-      "confidence": "low",
-      "kind": "calls",
-      "source": "symbol:app.models.User.generate_email_change_token",
-      "target": "external:s.dumps"
-    },
-    {
-      "confidence": "medium",
+      "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.models.User.change_email",
-      "target": "external:itsdangerous.TimedJSONWebSignatureSerializer"
+      "target": "symbol:app.models._decode_token"
     },
     {
       "confidence": "low",
@@ -4503,10 +4671,10 @@
       "target": "external:add"
     },
     {
-      "confidence": "low",
+      "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.models.User.change_email",
-      "target": "external:s.loads"
+      "target": "symbol:app.models._is_expired"
     },
     {
       "confidence": "low",
@@ -4519,12 +4687,6 @@
       "kind": "calls",
       "source": "symbol:app.models.User.change_email",
       "target": "external:first"
-    },
-    {
-      "confidence": "low",
-      "kind": "calls",
-      "source": "symbol:app.models.User.change_email",
-      "target": "external:token.encode"
     },
     {
       "confidence": "low",
@@ -4689,28 +4851,22 @@
       "target": "external:count"
     },
     {
-      "confidence": "medium",
+      "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.models.User.generate_auth_token",
-      "target": "external:itsdangerous.TimedJSONWebSignatureSerializer"
+      "target": "symbol:app.models._build_payload"
     },
     {
-      "confidence": "low",
+      "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.models.User.generate_auth_token",
-      "target": "external:decode"
+      "target": "symbol:app.models._encode_token"
     },
     {
-      "confidence": "low",
-      "kind": "calls",
-      "source": "symbol:app.models.User.generate_auth_token",
-      "target": "external:s.dumps"
-    },
-    {
-      "confidence": "medium",
+      "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.models.User.verify_auth_token",
-      "target": "external:itsdangerous.TimedJSONWebSignatureSerializer"
+      "target": "symbol:app.models._decode_token"
     },
     {
       "confidence": "low",
@@ -4719,10 +4875,10 @@
       "target": "external:get"
     },
     {
-      "confidence": "low",
+      "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.models.User.verify_auth_token",
-      "target": "external:s.loads"
+      "target": "symbol:app.models._is_expired"
     },
     {
       "confidence": "low",
@@ -5805,6 +5961,12 @@
       "target": "external:flask.url_for"
     },
     {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:time"
+    },
+    {
       "confidence": "low",
       "kind": "calls",
       "source": "symbol:app.gitreader.service.get_repo_index",
@@ -5826,7 +5988,19 @@
       "confidence": "medium",
       "kind": "calls",
       "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:time"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
       "target": "file:app/gitreader/ingest.py"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:time"
     },
     {
       "confidence": "medium",
@@ -5850,7 +6024,19 @@
       "confidence": "medium",
       "kind": "calls",
       "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:time"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
       "target": "external:app.gitreader.parse_python.parse_files"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:time"
     },
     {
       "confidence": "medium",
@@ -5868,13 +6054,103 @@
       "confidence": "medium",
       "kind": "calls",
       "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:time"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
       "target": "file:app/gitreader/storage.py"
     },
     {
       "confidence": "low",
       "kind": "calls",
       "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:LOGGER.info"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:time"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
       "target": "external:join"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:time"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:LOGGER.info"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:time"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:time"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:len"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:len"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:len"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:len"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:len"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:time"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:time"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:len"
     },
     {
       "confidence": "low",
@@ -5917,6 +6193,60 @@
       "kind": "calls",
       "source": "symbol:app.gitreader.service.get_repo_index",
       "target": "external:time"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:len"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:get"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:get"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:get"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:len"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:time"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:len"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:len"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_repo_index",
+      "target": "external:len"
     },
     {
       "confidence": "high",
@@ -5994,6 +6324,12 @@
       "confidence": "low",
       "kind": "calls",
       "source": "symbol:app.gitreader.service.get_symbol_snippet",
+      "target": "external:dict"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_symbol_snippet",
       "target": "external:len"
     },
     {
@@ -6001,6 +6337,12 @@
       "kind": "calls",
       "source": "symbol:app.gitreader.service.get_symbol_snippet",
       "target": "external:len"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.service.get_symbol_snippet",
+      "target": "external:warning.to_dict"
     },
     {
       "confidence": "low",
@@ -8064,25 +8406,37 @@
       "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.gitreader.routes.toc",
-      "target": "symbol:app.gitreader.routes._build_tree_toc"
-    },
-    {
-      "confidence": "medium",
-      "kind": "calls",
-      "source": "symbol:app.gitreader.routes.toc",
-      "target": "external:flask.jsonify"
+      "target": "symbol:app.gitreader.routes._error_response"
     },
     {
       "confidence": "low",
       "kind": "calls",
       "source": "symbol:app.gitreader.routes.toc",
-      "target": "external:warning.to_dict"
+      "target": "external:exception"
+    },
+    {
+      "confidence": "high",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes.toc",
+      "target": "symbol:app.gitreader.routes._error_response"
+    },
+    {
+      "confidence": "high",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes.toc",
+      "target": "symbol:app.gitreader.routes._build_tree_toc"
     },
     {
       "confidence": "low",
       "kind": "calls",
       "source": "symbol:app.gitreader.routes.toc",
       "target": "external:str"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes.toc",
+      "target": "external:warning.to_dict"
     },
     {
       "confidence": "medium",
@@ -8127,10 +8481,28 @@
       "target": "symbol:app.gitreader.routes._load_index"
     },
     {
-      "confidence": "medium",
+      "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.gitreader.routes.graph",
-      "target": "external:flask.jsonify"
+      "target": "symbol:app.gitreader.routes._error_response"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes.graph",
+      "target": "external:exception"
+    },
+    {
+      "confidence": "high",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes.graph",
+      "target": "symbol:app.gitreader.routes._error_response"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes.graph",
+      "target": "external:str"
     },
     {
       "confidence": "low",
@@ -8149,12 +8521,6 @@
       "kind": "calls",
       "source": "symbol:app.gitreader.routes.graph",
       "target": "external:warning.to_dict"
-    },
-    {
-      "confidence": "low",
-      "kind": "calls",
-      "source": "symbol:app.gitreader.routes.graph",
-      "target": "external:str"
     },
     {
       "confidence": "medium",
@@ -8232,25 +8598,43 @@
       "confidence": "high",
       "kind": "calls",
       "source": "symbol:app.gitreader.routes.symbol",
+      "target": "symbol:app.gitreader.routes._error_response"
+    },
+    {
+      "confidence": "high",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes.symbol",
       "target": "symbol:app.gitreader.routes._load_symbol_snippet"
-    },
-    {
-      "confidence": "medium",
-      "kind": "calls",
-      "source": "symbol:app.gitreader.routes.symbol",
-      "target": "external:flask.jsonify"
-    },
-    {
-      "confidence": "medium",
-      "kind": "calls",
-      "source": "symbol:app.gitreader.routes.symbol",
-      "target": "external:flask.jsonify"
     },
     {
       "confidence": "low",
       "kind": "calls",
       "source": "symbol:app.gitreader.routes.symbol",
       "target": "external:str"
+    },
+    {
+      "confidence": "high",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes.symbol",
+      "target": "symbol:app.gitreader.routes._error_response"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes.symbol",
+      "target": "external:exception"
+    },
+    {
+      "confidence": "high",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes.symbol",
+      "target": "symbol:app.gitreader.routes._error_response"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes.symbol",
+      "target": "external:message.lower"
     },
     {
       "confidence": "low",
@@ -8311,6 +8695,12 @@
       "kind": "calls",
       "source": "symbol:app.gitreader.routes._load_symbol_snippet",
       "target": "external:app.gitreader.service.get_symbol_snippet"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:app.gitreader.routes._error_response",
+      "target": "external:flask.jsonify"
     },
     {
       "confidence": "low",
@@ -9705,10 +10095,10 @@
       "target": "external:flask.render_template"
     },
     {
-      "confidence": "medium",
+      "confidence": "low",
       "kind": "calls",
       "source": "symbol:app.main.views.after_request",
-      "target": "external:flask_sqlalchemy.get_debug_queries"
+      "target": "external:get_debug_queries"
     },
     {
       "confidence": "low",
@@ -10697,6 +11087,348 @@
     {
       "confidence": "low",
       "kind": "inherits",
+      "source": "symbol:tests.test_gitreader_graph.ModulePathTests",
+      "target": "external:TestCase"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.ModulePathTests.test_module_path_from_file",
+      "target": "external:cases.items"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.ModulePathTests.test_module_path_from_file",
+      "target": "external:self.subTest"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.ModulePathTests.test_module_path_from_file",
+      "target": "external:self.assertEqual"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.ModulePathTests.test_module_path_from_file",
+      "target": "external:app.gitreader.parse_python.module_path_from_file"
+    },
+    {
+      "confidence": "low",
+      "kind": "inherits",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests",
+      "target": "external:TestCase"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:app.gitreader.models.symbol_id"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:app.gitreader.models.symbol_id"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:app.gitreader.models.symbol_id"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:app.gitreader.models.symbol_id"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:app.gitreader.models.file_id"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:app.gitreader.models.file_id"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:self.assertTrue"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:self.assertTrue"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:self.assertTrue"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:self.assertTrue"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:tempfile"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:sources.items"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:app.gitreader.parse_python.parse_files"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:app.gitreader.graph.build_graph"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:any"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:has_edge"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:has_edge"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:has_edge"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:has_edge"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:join"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:os"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:list"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:dirname"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:open"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:handle.write"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "target": "external:sources.keys"
+    },
+    {
+      "confidence": "low",
+      "kind": "inherits",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests",
+      "target": "external:TestCase"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_flasky_index_contains_expected_nodes",
+      "target": "external:abspath"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_flasky_index_contains_expected_nodes",
+      "target": "external:self.assertIn"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_flasky_index_contains_expected_nodes",
+      "target": "external:self.assertTrue"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_flasky_index_contains_expected_nodes",
+      "target": "external:join"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_flasky_index_contains_expected_nodes",
+      "target": "external:tempfile"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_flasky_index_contains_expected_nodes",
+      "target": "external:app.gitreader.service.get_repo_index"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_flasky_index_contains_expected_nodes",
+      "target": "external:app.gitreader.models.symbol_id"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_flasky_index_contains_expected_nodes",
+      "target": "external:any"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_flasky_index_contains_expected_nodes",
+      "target": "external:dirname"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_flasky_index_contains_expected_nodes",
+      "target": "external:app.gitreader.models.RepoSpec"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_flasky_index_contains_expected_nodes",
+      "target": "external:values"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_messy_repo_with_syntax_error",
+      "target": "external:self.assertIn"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_messy_repo_with_syntax_error",
+      "target": "external:self.assertIn"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_messy_repo_with_syntax_error",
+      "target": "external:tempfile"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_messy_repo_with_syntax_error",
+      "target": "external:app.gitreader.models.symbol_id"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_messy_repo_with_syntax_error",
+      "target": "external:open"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_messy_repo_with_syntax_error",
+      "target": "external:handle.write"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_messy_repo_with_syntax_error",
+      "target": "external:open"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_messy_repo_with_syntax_error",
+      "target": "external:handle.write"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_messy_repo_with_syntax_error",
+      "target": "external:tempfile"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_messy_repo_with_syntax_error",
+      "target": "external:app.gitreader.service.get_repo_index"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_messy_repo_with_syntax_error",
+      "target": "external:join"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_messy_repo_with_syntax_error",
+      "target": "external:join"
+    },
+    {
+      "confidence": "medium",
+      "kind": "calls",
+      "source": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_messy_repo_with_syntax_error",
+      "target": "external:app.gitreader.models.RepoSpec"
+    },
+    {
+      "confidence": "low",
+      "kind": "inherits",
       "source": "symbol:tests.test_basics.BasicsTestCase",
       "target": "external:TestCase"
     },
@@ -10761,10 +11493,10 @@
       "target": "external:TestCase"
     },
     {
-      "confidence": "medium",
+      "confidence": "low",
       "kind": "calls",
       "source": "symbol:tests.test_selenium.SeleniumTestCase.setUpClass",
-      "target": "external:selenium.webdriver"
+      "target": "external:webdriver.ChromeOptions"
     },
     {
       "confidence": "low",
@@ -10776,7 +11508,13 @@
       "confidence": "medium",
       "kind": "calls",
       "source": "symbol:tests.test_selenium.SeleniumTestCase.setUpClass",
-      "target": "external:selenium.webdriver"
+      "target": "external:unittest"
+    },
+    {
+      "confidence": "low",
+      "kind": "calls",
+      "source": "symbol:tests.test_selenium.SeleniumTestCase.setUpClass",
+      "target": "external:webdriver.Chrome"
     },
     {
       "confidence": "medium",
@@ -13653,7 +14391,7 @@
       "target": "external:str"
     }
   ],
-  "generated_at": 1768084396.378719,
+  "generated_at": 1768107579.3806028,
   "nodes": [
     {
       "id": "file:flasky.py",
@@ -14244,6 +14982,20 @@
       "summary": ""
     },
     {
+      "id": "file:tests/test_gitreader_graph.py",
+      "kind": "file",
+      "location": {
+        "end_col": 0,
+        "end_line": 0,
+        "path": "tests/test_gitreader_graph.py",
+        "start_col": 0,
+        "start_line": 0
+      },
+      "module": "tests.test_gitreader_graph",
+      "name": "tests/test_gitreader_graph.py",
+      "summary": ""
+    },
+    {
       "id": "file:tests/test_basics.py",
       "kind": "file",
       "location": {
@@ -14455,7 +15207,7 @@
       "kind": "class",
       "location": {
         "end_col": 43,
-        "end_line": 68,
+        "end_line": 70,
         "path": "config.py",
         "start_col": 0,
         "start_line": 42
@@ -14470,7 +15222,7 @@
       "kind": "method",
       "location": {
         "end_col": 43,
-        "end_line": 68,
+        "end_line": 70,
         "path": "config.py",
         "start_col": 4,
         "start_line": 48
@@ -14485,10 +15237,10 @@
       "kind": "class",
       "location": {
         "end_col": 43,
-        "end_line": 90,
+        "end_line": 92,
         "path": "config.py",
         "start_col": 0,
-        "start_line": 71
+        "start_line": 73
       },
       "module": "config",
       "name": "HerokuConfig",
@@ -14500,10 +15252,10 @@
       "kind": "method",
       "location": {
         "end_col": 43,
-        "end_line": 90,
+        "end_line": 92,
         "path": "config.py",
         "start_col": 4,
-        "start_line": 75
+        "start_line": 77
       },
       "module": "config",
       "name": "init_app",
@@ -14515,10 +15267,10 @@
       "kind": "class",
       "location": {
         "end_col": 43,
-        "end_line": 103,
+        "end_line": 105,
         "path": "config.py",
         "start_col": 0,
-        "start_line": 93
+        "start_line": 95
       },
       "module": "config",
       "name": "DockerConfig",
@@ -14530,10 +15282,10 @@
       "kind": "method",
       "location": {
         "end_col": 43,
-        "end_line": 103,
+        "end_line": 105,
         "path": "config.py",
         "start_col": 4,
-        "start_line": 95
+        "start_line": 97
       },
       "module": "config",
       "name": "init_app",
@@ -14545,10 +15297,10 @@
       "kind": "class",
       "location": {
         "end_col": 45,
-        "end_line": 116,
+        "end_line": 118,
         "path": "config.py",
         "start_col": 0,
-        "start_line": 106
+        "start_line": 108
       },
       "module": "config",
       "name": "UnixConfig",
@@ -14560,10 +15312,10 @@
       "kind": "method",
       "location": {
         "end_col": 45,
-        "end_line": 116,
+        "end_line": 118,
         "path": "config.py",
         "start_col": 4,
-        "start_line": 108
+        "start_line": 110
       },
       "module": "config",
       "name": "init_app",
@@ -14933,14 +15685,89 @@
       "summary": ""
     },
     {
+      "id": "symbol:app.models._get_serializer",
+      "kind": "function",
+      "location": {
+        "end_col": 55,
+        "end_line": 18,
+        "path": "app/models.py",
+        "start_col": 0,
+        "start_line": 17
+      },
+      "module": "app.models",
+      "name": "_get_serializer",
+      "signature": "def _get_serializer()",
+      "summary": ""
+    },
+    {
+      "id": "symbol:app.models._encode_token",
+      "kind": "function",
+      "location": {
+        "end_col": 16,
+        "end_line": 25,
+        "path": "app/models.py",
+        "start_col": 0,
+        "start_line": 21
+      },
+      "module": "app.models",
+      "name": "_encode_token",
+      "signature": "def _encode_token(payload)",
+      "summary": ""
+    },
+    {
+      "id": "symbol:app.models._decode_token",
+      "kind": "function",
+      "location": {
+        "end_col": 19,
+        "end_line": 34,
+        "path": "app/models.py",
+        "start_col": 0,
+        "start_line": 28
+      },
+      "module": "app.models",
+      "name": "_decode_token",
+      "signature": "def _decode_token(token)",
+      "summary": ""
+    },
+    {
+      "id": "symbol:app.models._build_payload",
+      "kind": "function",
+      "location": {
+        "end_col": 18,
+        "end_line": 40,
+        "path": "app/models.py",
+        "start_col": 0,
+        "start_line": 37
+      },
+      "module": "app.models",
+      "name": "_build_payload",
+      "signature": "def _build_payload(payload, expiration)",
+      "summary": ""
+    },
+    {
+      "id": "symbol:app.models._is_expired",
+      "kind": "function",
+      "location": {
+        "end_col": 28,
+        "end_line": 47,
+        "path": "app/models.py",
+        "start_col": 0,
+        "start_line": 43
+      },
+      "module": "app.models",
+      "name": "_is_expired",
+      "signature": "def _is_expired(payload)",
+      "summary": ""
+    },
+    {
       "id": "symbol:app.models.Permission",
       "kind": "class",
       "location": {
         "end_col": 14,
-        "end_line": 18,
+        "end_line": 55,
         "path": "app/models.py",
         "start_col": 0,
-        "start_line": 13
+        "start_line": 50
       },
       "module": "app.models",
       "name": "Permission",
@@ -14952,10 +15779,10 @@
       "kind": "class",
       "location": {
         "end_col": 38,
-        "end_line": 71,
+        "end_line": 108,
         "path": "app/models.py",
         "start_col": 0,
-        "start_line": 21
+        "start_line": 58
       },
       "module": "app.models",
       "name": "Role",
@@ -14967,10 +15794,10 @@
       "kind": "method",
       "location": {
         "end_col": 32,
-        "end_line": 32,
+        "end_line": 69,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 29
+        "start_line": 66
       },
       "module": "app.models",
       "name": "__init__",
@@ -14982,10 +15809,10 @@
       "kind": "method",
       "location": {
         "end_col": 27,
-        "end_line": 54,
+        "end_line": 91,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 35
+        "start_line": 72
       },
       "module": "app.models",
       "name": "insert_roles",
@@ -14997,10 +15824,10 @@
       "kind": "method",
       "location": {
         "end_col": 36,
-        "end_line": 58,
+        "end_line": 95,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 56
+        "start_line": 93
       },
       "module": "app.models",
       "name": "add_permission",
@@ -15012,10 +15839,10 @@
       "kind": "method",
       "location": {
         "end_col": 36,
-        "end_line": 62,
+        "end_line": 99,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 60
+        "start_line": 97
       },
       "module": "app.models",
       "name": "remove_permission",
@@ -15027,10 +15854,10 @@
       "kind": "method",
       "location": {
         "end_col": 28,
-        "end_line": 65,
+        "end_line": 102,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 64
+        "start_line": 101
       },
       "module": "app.models",
       "name": "reset_permissions",
@@ -15042,10 +15869,10 @@
       "kind": "method",
       "location": {
         "end_col": 46,
-        "end_line": 68,
+        "end_line": 105,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 67
+        "start_line": 104
       },
       "module": "app.models",
       "name": "has_permission",
@@ -15057,10 +15884,10 @@
       "kind": "method",
       "location": {
         "end_col": 38,
-        "end_line": 71,
+        "end_line": 108,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 70
+        "start_line": 107
       },
       "module": "app.models",
       "name": "__repr__",
@@ -15072,10 +15899,10 @@
       "kind": "class",
       "location": {
         "end_col": 63,
-        "end_line": 80,
+        "end_line": 117,
         "path": "app/models.py",
         "start_col": 0,
-        "start_line": 74
+        "start_line": 111
       },
       "module": "app.models",
       "name": "Follow",
@@ -15087,10 +15914,10 @@
       "kind": "class",
       "location": {
         "end_col": 42,
-        "end_line": 271,
+        "end_line": 301,
         "path": "app/models.py",
         "start_col": 0,
-        "start_line": 83
+        "start_line": 120
       },
       "module": "app.models",
       "name": "User",
@@ -15102,10 +15929,10 @@
       "kind": "method",
       "location": {
         "end_col": 35,
-        "end_line": 116,
+        "end_line": 153,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 111
+        "start_line": 148
       },
       "module": "app.models",
       "name": "add_self_follows",
@@ -15117,10 +15944,10 @@
       "kind": "method",
       "location": {
         "end_col": 25,
-        "end_line": 127,
+        "end_line": 164,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 118
+        "start_line": 155
       },
       "module": "app.models",
       "name": "__init__",
@@ -15132,10 +15959,10 @@
       "kind": "method",
       "location": {
         "end_col": 61,
-        "end_line": 135,
+        "end_line": 172,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 134
+        "start_line": 171
       },
       "module": "app.models",
       "name": "password",
@@ -15147,10 +15974,10 @@
       "kind": "method",
       "location": {
         "end_col": 64,
-        "end_line": 138,
+        "end_line": 175,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 137
+        "start_line": 174
       },
       "module": "app.models",
       "name": "verify_password",
@@ -15161,11 +15988,11 @@
       "id": "symbol:app.models.User.generate_confirmation_token",
       "kind": "method",
       "location": {
-        "end_col": 60,
-        "end_line": 142,
+        "end_col": 37,
+        "end_line": 179,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 140
+        "start_line": 177
       },
       "module": "app.models",
       "name": "generate_confirmation_token",
@@ -15177,10 +16004,10 @@
       "kind": "method",
       "location": {
         "end_col": 19,
-        "end_line": 154,
+        "end_line": 189,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 144
+        "start_line": 181
       },
       "module": "app.models",
       "name": "confirm",
@@ -15191,11 +16018,11 @@
       "id": "symbol:app.models.User.generate_reset_token",
       "kind": "method",
       "location": {
-        "end_col": 58,
-        "end_line": 158,
+        "end_col": 37,
+        "end_line": 193,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 156
+        "start_line": 191
       },
       "module": "app.models",
       "name": "generate_reset_token",
@@ -15207,10 +16034,10 @@
       "kind": "method",
       "location": {
         "end_col": 19,
-        "end_line": 172,
+        "end_line": 205,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 161
+        "start_line": 196
       },
       "module": "app.models",
       "name": "reset_password",
@@ -15221,11 +16048,11 @@
       "id": "symbol:app.models.User.generate_email_change_token",
       "kind": "method",
       "location": {
-        "end_col": 78,
-        "end_line": 177,
+        "end_col": 37,
+        "end_line": 212,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 174
+        "start_line": 207
       },
       "module": "app.models",
       "name": "generate_email_change_token",
@@ -15237,10 +16064,10 @@
       "kind": "method",
       "location": {
         "end_col": 19,
-        "end_line": 195,
+        "end_line": 228,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 179
+        "start_line": 214
       },
       "module": "app.models",
       "name": "change_email",
@@ -15252,10 +16079,10 @@
       "kind": "method",
       "location": {
         "end_col": 71,
-        "end_line": 198,
+        "end_line": 231,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 197
+        "start_line": 230
       },
       "module": "app.models",
       "name": "can",
@@ -15267,10 +16094,10 @@
       "kind": "method",
       "location": {
         "end_col": 41,
-        "end_line": 201,
+        "end_line": 234,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 200
+        "start_line": 233
       },
       "module": "app.models",
       "name": "is_administrator",
@@ -15282,10 +16109,10 @@
       "kind": "method",
       "location": {
         "end_col": 28,
-        "end_line": 205,
+        "end_line": 238,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 203
+        "start_line": 236
       },
       "module": "app.models",
       "name": "ping",
@@ -15297,10 +16124,10 @@
       "kind": "method",
       "location": {
         "end_col": 74,
-        "end_line": 208,
+        "end_line": 241,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 207
+        "start_line": 240
       },
       "module": "app.models",
       "name": "gravatar_hash",
@@ -15312,10 +16139,10 @@
       "kind": "method",
       "location": {
         "end_col": 74,
-        "end_line": 214,
+        "end_line": 247,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 210
+        "start_line": 243
       },
       "module": "app.models",
       "name": "gravatar",
@@ -15327,10 +16154,10 @@
       "kind": "method",
       "location": {
         "end_col": 29,
-        "end_line": 219,
+        "end_line": 252,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 216
+        "start_line": 249
       },
       "module": "app.models",
       "name": "follow",
@@ -15342,10 +16169,10 @@
       "kind": "method",
       "location": {
         "end_col": 32,
-        "end_line": 224,
+        "end_line": 257,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 221
+        "start_line": 254
       },
       "module": "app.models",
       "name": "unfollow",
@@ -15357,10 +16184,10 @@
       "kind": "method",
       "location": {
         "end_col": 52,
-        "end_line": 230,
+        "end_line": 263,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 226
+        "start_line": 259
       },
       "module": "app.models",
       "name": "is_following",
@@ -15372,10 +16199,10 @@
       "kind": "method",
       "location": {
         "end_col": 52,
-        "end_line": 236,
+        "end_line": 269,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 232
+        "start_line": 265
       },
       "module": "app.models",
       "name": "is_followed_by",
@@ -15387,10 +16214,10 @@
       "kind": "method",
       "location": {
         "end_col": 50,
-        "end_line": 241,
+        "end_line": 274,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 239
+        "start_line": 272
       },
       "module": "app.models",
       "name": "followed_posts",
@@ -15402,10 +16229,10 @@
       "kind": "method",
       "location": {
         "end_col": 24,
-        "end_line": 254,
+        "end_line": 287,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 243
+        "start_line": 276
       },
       "module": "app.models",
       "name": "to_json",
@@ -15416,11 +16243,11 @@
       "id": "symbol:app.models.User.generate_auth_token",
       "kind": "method",
       "location": {
-        "end_col": 55,
-        "end_line": 259,
+        "end_col": 37,
+        "end_line": 291,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 256
+        "start_line": 289
       },
       "module": "app.models",
       "name": "generate_auth_token",
@@ -15432,10 +16259,10 @@
       "kind": "method",
       "location": {
         "end_col": 41,
-        "end_line": 268,
+        "end_line": 298,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 262
+        "start_line": 294
       },
       "module": "app.models",
       "name": "verify_auth_token",
@@ -15447,10 +16274,10 @@
       "kind": "method",
       "location": {
         "end_col": 42,
-        "end_line": 271,
+        "end_line": 301,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 270
+        "start_line": 300
       },
       "module": "app.models",
       "name": "__repr__",
@@ -15462,10 +16289,10 @@
       "kind": "class",
       "location": {
         "end_col": 20,
-        "end_line": 279,
+        "end_line": 309,
         "path": "app/models.py",
         "start_col": 0,
-        "start_line": 274
+        "start_line": 304
       },
       "module": "app.models",
       "name": "AnonymousUser",
@@ -15477,10 +16304,10 @@
       "kind": "method",
       "location": {
         "end_col": 20,
-        "end_line": 276,
+        "end_line": 306,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 275
+        "start_line": 305
       },
       "module": "app.models",
       "name": "can",
@@ -15492,10 +16319,10 @@
       "kind": "method",
       "location": {
         "end_col": 20,
-        "end_line": 279,
+        "end_line": 309,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 278
+        "start_line": 308
       },
       "module": "app.models",
       "name": "is_administrator",
@@ -15507,10 +16334,10 @@
       "kind": "function",
       "location": {
         "end_col": 39,
-        "end_line": 286,
+        "end_line": 316,
         "path": "app/models.py",
         "start_col": 0,
-        "start_line": 285
+        "start_line": 315
       },
       "module": "app.models",
       "name": "load_user",
@@ -15522,10 +16349,10 @@
       "kind": "class",
       "location": {
         "end_col": 30,
-        "end_line": 324,
+        "end_line": 354,
         "path": "app/models.py",
         "start_col": 0,
-        "start_line": 289
+        "start_line": 319
       },
       "module": "app.models",
       "name": "Post",
@@ -15537,10 +16364,10 @@
       "kind": "method",
       "location": {
         "end_col": 43,
-        "end_line": 305,
+        "end_line": 335,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 299
+        "start_line": 329
       },
       "module": "app.models",
       "name": "on_changed_body",
@@ -15552,10 +16379,10 @@
       "kind": "method",
       "location": {
         "end_col": 24,
-        "end_line": 317,
+        "end_line": 347,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 307
+        "start_line": 337
       },
       "module": "app.models",
       "name": "to_json",
@@ -15567,10 +16394,10 @@
       "kind": "method",
       "location": {
         "end_col": 30,
-        "end_line": 324,
+        "end_line": 354,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 320
+        "start_line": 350
       },
       "module": "app.models",
       "name": "from_json",
@@ -15582,10 +16409,10 @@
       "kind": "class",
       "location": {
         "end_col": 33,
-        "end_line": 364,
+        "end_line": 394,
         "path": "app/models.py",
         "start_col": 0,
-        "start_line": 330
+        "start_line": 360
       },
       "module": "app.models",
       "name": "Comment",
@@ -15597,10 +16424,10 @@
       "kind": "method",
       "location": {
         "end_col": 43,
-        "end_line": 346,
+        "end_line": 376,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 341
+        "start_line": 371
       },
       "module": "app.models",
       "name": "on_changed_body",
@@ -15612,10 +16439,10 @@
       "kind": "method",
       "location": {
         "end_col": 27,
-        "end_line": 357,
+        "end_line": 387,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 348
+        "start_line": 378
       },
       "module": "app.models",
       "name": "to_json",
@@ -15627,10 +16454,10 @@
       "kind": "method",
       "location": {
         "end_col": 33,
-        "end_line": 364,
+        "end_line": 394,
         "path": "app/models.py",
         "start_col": 4,
-        "start_line": 360
+        "start_line": 390
       },
       "module": "app.models",
       "name": "from_json",
@@ -16061,10 +16888,10 @@
       "kind": "function",
       "location": {
         "end_col": 16,
-        "end_line": 69,
+        "end_line": 118,
         "path": "app/gitreader/service.py",
         "start_col": 0,
-        "start_line": 18
+        "start_line": 20
       },
       "module": "app.gitreader.service",
       "name": "get_repo_index",
@@ -16076,10 +16903,10 @@
       "kind": "function",
       "location": {
         "end_col": 5,
-        "end_line": 121,
+        "end_line": 172,
         "path": "app/gitreader/service.py",
         "start_col": 0,
-        "start_line": 72
+        "start_line": 121
       },
       "module": "app.gitreader.service",
       "name": "get_symbol_snippet",
@@ -16091,10 +16918,10 @@
       "kind": "function",
       "location": {
         "end_col": 78,
-        "end_line": 127,
+        "end_line": 178,
         "path": "app/gitreader/service.py",
         "start_col": 0,
-        "start_line": 124
+        "start_line": 175
       },
       "module": "app.gitreader.service",
       "name": "_compute_signature",
@@ -16106,10 +16933,10 @@
       "kind": "function",
       "location": {
         "end_col": 17,
-        "end_line": 141,
+        "end_line": 192,
         "path": "app/gitreader/service.py",
         "start_col": 0,
-        "start_line": 130
+        "start_line": 181
       },
       "module": "app.gitreader.service",
       "name": "_read_source_lines",
@@ -16121,10 +16948,10 @@
       "kind": "function",
       "location": {
         "end_col": 49,
-        "end_line": 154,
+        "end_line": 205,
         "path": "app/gitreader/service.py",
         "start_col": 0,
-        "start_line": 144
+        "start_line": 195
       },
       "module": "app.gitreader.service",
       "name": "_resolve_line_range",
@@ -16136,10 +16963,10 @@
       "kind": "function",
       "location": {
         "end_col": 43,
-        "end_line": 221,
+        "end_line": 272,
         "path": "app/gitreader/service.py",
         "start_col": 0,
-        "start_line": 157
+        "start_line": 208
       },
       "module": "app.gitreader.service",
       "name": "_resolve_snippet_range",
@@ -16945,7 +17772,7 @@
       "kind": "function",
       "location": {
         "end_col": 6,
-        "end_line": 35,
+        "end_line": 38,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
         "start_line": 16
@@ -16960,10 +17787,10 @@
       "kind": "function",
       "location": {
         "end_col": 6,
-        "end_line": 54,
+        "end_line": 60,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 39
+        "start_line": 42
       },
       "module": "app.gitreader.routes",
       "name": "graph",
@@ -16975,10 +17802,10 @@
       "kind": "function",
       "location": {
         "end_col": 29,
-        "end_line": 82,
+        "end_line": 88,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 58
+        "start_line": 64
       },
       "module": "app.gitreader.routes",
       "name": "narrate",
@@ -16990,10 +17817,10 @@
       "kind": "function",
       "location": {
         "end_col": 27,
-        "end_line": 101,
+        "end_line": 117,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 87
+        "start_line": 93
       },
       "module": "app.gitreader.routes",
       "name": "symbol",
@@ -17005,10 +17832,10 @@
       "kind": "function",
       "location": {
         "end_col": 5,
-        "end_line": 114,
+        "end_line": 130,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 104
+        "start_line": 120
       },
       "module": "app.gitreader.routes",
       "name": "_repo_spec_from_request",
@@ -17020,10 +17847,10 @@
       "kind": "function",
       "location": {
         "end_col": 54,
-        "end_line": 119,
+        "end_line": 135,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 117
+        "start_line": 133
       },
       "module": "app.gitreader.routes",
       "name": "_load_index",
@@ -17035,10 +17862,10 @@
       "kind": "function",
       "location": {
         "end_col": 96,
-        "end_line": 124,
+        "end_line": 140,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 122
+        "start_line": 138
       },
       "module": "app.gitreader.routes",
       "name": "_load_symbol_snippet",
@@ -17046,14 +17873,29 @@
       "summary": ""
     },
     {
+      "id": "symbol:app.gitreader.routes._error_response",
+      "kind": "function",
+      "location": {
+        "end_col": 35,
+        "end_line": 152,
+        "path": "app/gitreader/routes.py",
+        "start_col": 0,
+        "start_line": 143
+      },
+      "module": "app.gitreader.routes",
+      "name": "_error_response",
+      "signature": "def _error_response(code: str, message: str, status: int = 400, details: dict | None = None)",
+      "summary": ""
+    },
+    {
       "id": "symbol:app.gitreader.routes._filter_graph",
       "kind": "function",
       "location": {
         "end_col": 56,
-        "end_line": 140,
+        "end_line": 168,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 127
+        "start_line": 155
       },
       "module": "app.gitreader.routes",
       "name": "_filter_graph",
@@ -17065,10 +17907,10 @@
       "kind": "function",
       "location": {
         "end_col": 23,
-        "end_line": 167,
+        "end_line": 195,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 143
+        "start_line": 171
       },
       "module": "app.gitreader.routes",
       "name": "_apply_scope_paths",
@@ -17080,10 +17922,10 @@
       "kind": "function",
       "location": {
         "end_col": 36,
-        "end_line": 241,
+        "end_line": 269,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 170
+        "start_line": 198
       },
       "module": "app.gitreader.routes",
       "name": "_collapse_externals",
@@ -17095,10 +17937,10 @@
       "kind": "function",
       "location": {
         "end_col": 24,
-        "end_line": 256,
+        "end_line": 284,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 244
+        "start_line": 272
       },
       "module": "app.gitreader.routes",
       "name": "_group_paths",
@@ -17110,10 +17952,10 @@
       "kind": "function",
       "location": {
         "end_col": 14,
-        "end_line": 279,
+        "end_line": 307,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 259
+        "start_line": 287
       },
       "module": "app.gitreader.routes",
       "name": "_build_tree_toc",
@@ -17125,10 +17967,10 @@
       "kind": "function",
       "location": {
         "end_col": 19,
-        "end_line": 303,
+        "end_line": 331,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 282
+        "start_line": 310
       },
       "module": "app.gitreader.routes",
       "name": "_build_story_toc",
@@ -17140,10 +17982,10 @@
       "kind": "function",
       "location": {
         "end_col": 5,
-        "end_line": 359,
+        "end_line": 387,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 306
+        "start_line": 334
       },
       "module": "app.gitreader.routes",
       "name": "_story_scope_paths",
@@ -17155,10 +17997,10 @@
       "kind": "function",
       "location": {
         "end_col": 20,
-        "end_line": 368,
+        "end_line": 396,
         "path": "app/gitreader/routes.py",
         "start_col": 0,
-        "start_line": 362
+        "start_line": 390
       },
       "module": "app.gitreader.routes",
       "name": "_default_repo_root",
@@ -17244,7 +18086,7 @@
       "id": "symbol:app.api.posts.new_post",
       "kind": "function",
       "location": {
-        "end_col": 57,
+        "end_col": 73,
         "end_line": 44,
         "path": "app/api/posts.py",
         "start_col": 0,
@@ -17453,7 +18295,7 @@
       "id": "symbol:app.api.comments.new_post_comment",
       "kind": "function",
       "location": {
-        "end_col": 63,
+        "end_col": 79,
         "end_line": 67,
         "path": "app/api/comments.py",
         "start_col": 0,
@@ -17678,10 +18520,10 @@
       "kind": "function",
       "location": {
         "end_col": 19,
-        "end_line": 21,
+        "end_line": 25,
         "path": "app/main/views.py",
         "start_col": 0,
-        "start_line": 14
+        "start_line": 18
       },
       "module": "app.main.views",
       "name": "after_request",
@@ -17693,10 +18535,10 @@
       "kind": "function",
       "location": {
         "end_col": 29,
-        "end_line": 32,
+        "end_line": 36,
         "path": "app/main/views.py",
         "start_col": 0,
-        "start_line": 25
+        "start_line": 29
       },
       "module": "app.main.views",
       "name": "server_shutdown",
@@ -17708,10 +18550,10 @@
       "kind": "function",
       "location": {
         "end_col": 78,
-        "end_line": 57,
+        "end_line": 61,
         "path": "app/main/views.py",
         "start_col": 0,
-        "start_line": 36
+        "start_line": 40
       },
       "module": "app.main.views",
       "name": "index",
@@ -17723,10 +18565,10 @@
       "kind": "function",
       "location": {
         "end_col": 49,
-        "end_line": 69,
+        "end_line": 73,
         "path": "app/main/views.py",
         "start_col": 0,
-        "start_line": 61
+        "start_line": 65
       },
       "module": "app.main.views",
       "name": "user",
@@ -17738,10 +18580,10 @@
       "kind": "function",
       "location": {
         "end_col": 58,
-        "end_line": 87,
+        "end_line": 91,
         "path": "app/main/views.py",
         "start_col": 0,
-        "start_line": 74
+        "start_line": 78
       },
       "module": "app.main.views",
       "name": "edit_profile",
@@ -17753,10 +18595,10 @@
       "kind": "function",
       "location": {
         "end_col": 69,
-        "end_line": 115,
+        "end_line": 119,
         "path": "app/main/views.py",
         "start_col": 0,
-        "start_line": 93
+        "start_line": 97
       },
       "module": "app.main.views",
       "name": "edit_profile_admin",
@@ -17768,10 +18610,10 @@
       "kind": "function",
       "location": {
         "end_col": 68,
-        "end_line": 139,
+        "end_line": 143,
         "path": "app/main/views.py",
         "start_col": 0,
-        "start_line": 119
+        "start_line": 123
       },
       "module": "app.main.views",
       "name": "post",
@@ -17783,10 +18625,10 @@
       "kind": "function",
       "location": {
         "end_col": 55,
-        "end_line": 157,
+        "end_line": 161,
         "path": "app/main/views.py",
         "start_col": 0,
-        "start_line": 144
+        "start_line": 148
       },
       "module": "app.main.views",
       "name": "edit",
@@ -17798,10 +18640,10 @@
       "kind": "function",
       "location": {
         "end_col": 56,
-        "end_line": 174,
+        "end_line": 178,
         "path": "app/main/views.py",
         "start_col": 0,
-        "start_line": 163
+        "start_line": 167
       },
       "module": "app.main.views",
       "name": "follow",
@@ -17813,10 +18655,10 @@
       "kind": "function",
       "location": {
         "end_col": 56,
-        "end_line": 191,
+        "end_line": 195,
         "path": "app/main/views.py",
         "start_col": 0,
-        "start_line": 180
+        "start_line": 184
       },
       "module": "app.main.views",
       "name": "unfollow",
@@ -17828,10 +18670,10 @@
       "kind": "function",
       "location": {
         "end_col": 43,
-        "end_line": 208,
+        "end_line": 212,
         "path": "app/main/views.py",
         "start_col": 0,
-        "start_line": 195
+        "start_line": 199
       },
       "module": "app.main.views",
       "name": "followers",
@@ -17843,10 +18685,10 @@
       "kind": "function",
       "location": {
         "end_col": 43,
-        "end_line": 225,
+        "end_line": 229,
         "path": "app/main/views.py",
         "start_col": 0,
-        "start_line": 212
+        "start_line": 216
       },
       "module": "app.main.views",
       "name": "followed_by",
@@ -17858,10 +18700,10 @@
       "kind": "function",
       "location": {
         "end_col": 15,
-        "end_line": 233,
+        "end_line": 237,
         "path": "app/main/views.py",
         "start_col": 0,
-        "start_line": 230
+        "start_line": 234
       },
       "module": "app.main.views",
       "name": "show_all",
@@ -17873,10 +18715,10 @@
       "kind": "function",
       "location": {
         "end_col": 15,
-        "end_line": 241,
+        "end_line": 245,
         "path": "app/main/views.py",
         "start_col": 0,
-        "start_line": 238
+        "start_line": 242
       },
       "module": "app.main.views",
       "name": "show_followed",
@@ -17888,10 +18730,10 @@
       "kind": "function",
       "location": {
         "end_col": 60,
-        "end_line": 254,
+        "end_line": 258,
         "path": "app/main/views.py",
         "start_col": 0,
-        "start_line": 247
+        "start_line": 251
       },
       "module": "app.main.views",
       "name": "moderate",
@@ -17903,10 +18745,10 @@
       "kind": "function",
       "location": {
         "end_col": 72,
-        "end_line": 266,
+        "end_line": 270,
         "path": "app/main/views.py",
         "start_col": 0,
-        "start_line": 260
+        "start_line": 264
       },
       "module": "app.main.views",
       "name": "moderate_enable",
@@ -17918,14 +18760,119 @@
       "kind": "function",
       "location": {
         "end_col": 72,
-        "end_line": 278,
+        "end_line": 282,
         "path": "app/main/views.py",
         "start_col": 0,
-        "start_line": 272
+        "start_line": 276
       },
       "module": "app.main.views",
       "name": "moderate_disable",
       "signature": "def moderate_disable(id)",
+      "summary": ""
+    },
+    {
+      "id": "symbol:tests.test_gitreader_graph.ModulePathTests",
+      "kind": "class",
+      "location": {
+        "end_col": 75,
+        "end_line": 23,
+        "path": "tests/test_gitreader_graph.py",
+        "start_col": 0,
+        "start_line": 13
+      },
+      "module": "tests.test_gitreader_graph",
+      "name": "ModulePathTests",
+      "signature": "class ModulePathTests(unittest.TestCase)",
+      "summary": ""
+    },
+    {
+      "id": "symbol:tests.test_gitreader_graph.ModulePathTests.test_module_path_from_file",
+      "kind": "method",
+      "location": {
+        "end_col": 75,
+        "end_line": 23,
+        "path": "tests/test_gitreader_graph.py",
+        "start_col": 4,
+        "start_line": 14
+      },
+      "module": "tests.test_gitreader_graph",
+      "name": "test_module_path_from_file",
+      "signature": "def test_module_path_from_file(self)",
+      "summary": ""
+    },
+    {
+      "id": "symbol:tests.test_gitreader_graph.GraphResolutionTests",
+      "kind": "class",
+      "location": {
+        "end_col": 60,
+        "end_line": 75,
+        "path": "tests/test_gitreader_graph.py",
+        "start_col": 0,
+        "start_line": 26
+      },
+      "module": "tests.test_gitreader_graph",
+      "name": "GraphResolutionTests",
+      "signature": "class GraphResolutionTests(unittest.TestCase)",
+      "summary": ""
+    },
+    {
+      "id": "symbol:tests.test_gitreader_graph.GraphResolutionTests.test_import_alias_and_call_resolution",
+      "kind": "method",
+      "location": {
+        "end_col": 60,
+        "end_line": 75,
+        "path": "tests/test_gitreader_graph.py",
+        "start_col": 4,
+        "start_line": 27
+      },
+      "module": "tests.test_gitreader_graph",
+      "name": "test_import_alias_and_call_resolution",
+      "signature": "def test_import_alias_and_call_resolution(self)",
+      "summary": ""
+    },
+    {
+      "id": "symbol:tests.test_gitreader_graph.IntegrationGraphTests",
+      "kind": "class",
+      "location": {
+        "end_col": 56,
+        "end_line": 100,
+        "path": "tests/test_gitreader_graph.py",
+        "start_col": 0,
+        "start_line": 78
+      },
+      "module": "tests.test_gitreader_graph",
+      "name": "IntegrationGraphTests",
+      "signature": "class IntegrationGraphTests(unittest.TestCase)",
+      "summary": ""
+    },
+    {
+      "id": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_flasky_index_contains_expected_nodes",
+      "kind": "method",
+      "location": {
+        "end_col": 9,
+        "end_line": 87,
+        "path": "tests/test_gitreader_graph.py",
+        "start_col": 4,
+        "start_line": 79
+      },
+      "module": "tests.test_gitreader_graph",
+      "name": "test_flasky_index_contains_expected_nodes",
+      "signature": "def test_flasky_index_contains_expected_nodes(self)",
+      "summary": ""
+    },
+    {
+      "id": "symbol:tests.test_gitreader_graph.IntegrationGraphTests.test_messy_repo_with_syntax_error",
+      "kind": "method",
+      "location": {
+        "end_col": 56,
+        "end_line": 100,
+        "path": "tests/test_gitreader_graph.py",
+        "start_col": 4,
+        "start_line": 89
+      },
+      "module": "tests.test_gitreader_graph",
+      "name": "test_messy_repo_with_syntax_error",
+      "signature": "def test_messy_repo_with_syntax_error(self)",
       "summary": ""
     },
     {
@@ -18008,10 +18955,10 @@
       "kind": "class",
       "location": {
         "end_col": 63,
-        "end_line": 98,
+        "end_line": 106,
         "path": "tests/test_selenium.py",
         "start_col": 0,
-        "start_line": 10
+        "start_line": 16
       },
       "module": "tests.test_selenium",
       "name": "SeleniumTestCase",
@@ -18023,10 +18970,10 @@
       "kind": "method",
       "location": {
         "end_col": 25,
-        "end_line": 55,
+        "end_line": 63,
         "path": "tests/test_selenium.py",
         "start_col": 4,
-        "start_line": 14
+        "start_line": 20
       },
       "module": "tests.test_selenium",
       "name": "setUpClass",
@@ -18038,10 +18985,10 @@
       "kind": "method",
       "location": {
         "end_col": 33,
-        "end_line": 70,
+        "end_line": 78,
         "path": "tests/test_selenium.py",
         "start_col": 4,
-        "start_line": 58
+        "start_line": 66
       },
       "module": "tests.test_selenium",
       "name": "tearDownClass",
@@ -18053,10 +19000,10 @@
       "kind": "method",
       "location": {
         "end_col": 54,
-        "end_line": 74,
+        "end_line": 82,
         "path": "tests/test_selenium.py",
         "start_col": 4,
-        "start_line": 72
+        "start_line": 80
       },
       "module": "tests.test_selenium",
       "name": "setUp",
@@ -18068,10 +19015,10 @@
       "kind": "method",
       "location": {
         "end_col": 12,
-        "end_line": 77,
+        "end_line": 85,
         "path": "tests/test_selenium.py",
         "start_col": 4,
-        "start_line": 76
+        "start_line": 84
       },
       "module": "tests.test_selenium",
       "name": "tearDown",
@@ -18083,10 +19030,10 @@
       "kind": "method",
       "location": {
         "end_col": 63,
-        "end_line": 98,
+        "end_line": 106,
         "path": "tests/test_selenium.py",
         "start_col": 4,
-        "start_line": 79
+        "start_line": 87
       },
       "module": "tests.test_selenium",
       "name": "test_admin_home_page",
@@ -18814,15 +19761,15 @@
       "summary": ""
     },
     {
-      "id": "external:werkzeug.security",
+      "id": "external:time",
       "kind": "external",
-      "name": "werkzeug.security",
+      "name": "time",
       "summary": ""
     },
     {
-      "id": "external:itsdangerous",
+      "id": "external:werkzeug.security",
       "kind": "external",
-      "name": "itsdangerous",
+      "name": "werkzeug.security",
       "summary": ""
     },
     {
@@ -18904,9 +19851,9 @@
       "summary": ""
     },
     {
-      "id": "external:time",
+      "id": "external:logging",
       "kind": "external",
-      "name": "time",
+      "name": "logging",
       "summary": ""
     },
     {
@@ -18964,15 +19911,15 @@
       "summary": ""
     },
     {
-      "id": "external:unittest",
+      "id": "external:tempfile",
       "kind": "external",
-      "name": "unittest",
+      "name": "tempfile",
       "summary": ""
     },
     {
-      "id": "external:selenium",
+      "id": "external:unittest",
       "kind": "external",
-      "name": "selenium",
+      "name": "unittest",
       "summary": ""
     },
     {
@@ -19147,6 +20094,12 @@
       "id": "external:addHandler",
       "kind": "external",
       "name": "addHandler",
+      "summary": ""
+    },
+    {
+      "id": "external:RuntimeError",
+      "kind": "external",
+      "name": "RuntimeError",
       "summary": ""
     },
     {
@@ -19336,6 +20289,42 @@
       "summary": ""
     },
     {
+      "id": "external:Serializer",
+      "kind": "external",
+      "name": "Serializer",
+      "summary": ""
+    },
+    {
+      "id": "external:dumps",
+      "kind": "external",
+      "name": "dumps",
+      "summary": ""
+    },
+    {
+      "id": "external:isinstance",
+      "kind": "external",
+      "name": "isinstance",
+      "summary": ""
+    },
+    {
+      "id": "external:token.decode",
+      "kind": "external",
+      "name": "token.decode",
+      "summary": ""
+    },
+    {
+      "id": "external:loads",
+      "kind": "external",
+      "name": "loads",
+      "summary": ""
+    },
+    {
+      "id": "external:payload.get",
+      "kind": "external",
+      "name": "payload.get",
+      "summary": ""
+    },
+    {
       "id": "external:Model",
       "kind": "external",
       "name": "Model",
@@ -19414,39 +20403,9 @@
       "summary": ""
     },
     {
-      "id": "external:itsdangerous.TimedJSONWebSignatureSerializer",
-      "kind": "external",
-      "name": "itsdangerous.TimedJSONWebSignatureSerializer",
-      "summary": ""
-    },
-    {
-      "id": "external:decode",
-      "kind": "external",
-      "name": "decode",
-      "summary": ""
-    },
-    {
-      "id": "external:s.dumps",
-      "kind": "external",
-      "name": "s.dumps",
-      "summary": ""
-    },
-    {
-      "id": "external:s.loads",
-      "kind": "external",
-      "name": "s.loads",
-      "summary": ""
-    },
-    {
       "id": "external:data.get",
       "kind": "external",
       "name": "data.get",
-      "summary": ""
-    },
-    {
-      "id": "external:token.encode",
-      "kind": "external",
-      "name": "token.encode",
       "summary": ""
     },
     {
@@ -19810,6 +20769,12 @@
       "summary": ""
     },
     {
+      "id": "external:LOGGER.info",
+      "kind": "external",
+      "name": "LOGGER.info",
+      "summary": ""
+    },
+    {
       "id": "external:len",
       "kind": "external",
       "name": "len",
@@ -19831,6 +20796,12 @@
       "id": "external:to_dict",
       "kind": "external",
       "name": "to_dict",
+      "summary": ""
+    },
+    {
+      "id": "external:warning.to_dict",
+      "kind": "external",
+      "name": "warning.to_dict",
       "summary": ""
     },
     {
@@ -20014,33 +20985,15 @@
       "summary": ""
     },
     {
-      "id": "external:warning.to_dict",
-      "kind": "external",
-      "name": "warning.to_dict",
-      "summary": ""
-    },
-    {
       "id": "external:values",
       "kind": "external",
       "name": "values",
       "summary": ""
     },
     {
-      "id": "external:payload.get",
-      "kind": "external",
-      "name": "payload.get",
-      "summary": ""
-    },
-    {
       "id": "external:cls",
       "kind": "external",
       "name": "cls",
-      "summary": ""
-    },
-    {
-      "id": "external:isinstance",
-      "kind": "external",
-      "name": "isinstance",
       "summary": ""
     },
     {
@@ -20278,6 +21231,12 @@
       "summary": ""
     },
     {
+      "id": "external:exception",
+      "kind": "external",
+      "name": "exception",
+      "summary": ""
+    },
+    {
       "id": "external:symbol.get",
       "kind": "external",
       "name": "symbol.get",
@@ -20287,6 +21246,12 @@
       "id": "external:flask.request",
       "kind": "external",
       "name": "flask.request",
+      "summary": ""
+    },
+    {
+      "id": "external:message.lower",
+      "kind": "external",
+      "name": "message.lower",
       "summary": ""
     },
     {
@@ -20566,9 +21531,9 @@
       "summary": ""
     },
     {
-      "id": "external:flask_sqlalchemy.get_debug_queries",
+      "id": "external:get_debug_queries",
       "kind": "external",
-      "name": "flask_sqlalchemy.get_debug_queries",
+      "name": "get_debug_queries",
       "summary": ""
     },
     {
@@ -20650,6 +21615,72 @@
       "summary": ""
     },
     {
+      "id": "external:cases.items",
+      "kind": "external",
+      "name": "cases.items",
+      "summary": ""
+    },
+    {
+      "id": "external:self.subTest",
+      "kind": "external",
+      "name": "self.subTest",
+      "summary": ""
+    },
+    {
+      "id": "external:self.assertEqual",
+      "kind": "external",
+      "name": "self.assertEqual",
+      "summary": ""
+    },
+    {
+      "id": "external:app.gitreader.parse_python.module_path_from_file",
+      "kind": "external",
+      "name": "app.gitreader.parse_python.module_path_from_file",
+      "summary": ""
+    },
+    {
+      "id": "external:self.assertTrue",
+      "kind": "external",
+      "name": "self.assertTrue",
+      "summary": ""
+    },
+    {
+      "id": "external:sources.items",
+      "kind": "external",
+      "name": "sources.items",
+      "summary": ""
+    },
+    {
+      "id": "external:any",
+      "kind": "external",
+      "name": "any",
+      "summary": ""
+    },
+    {
+      "id": "external:has_edge",
+      "kind": "external",
+      "name": "has_edge",
+      "summary": ""
+    },
+    {
+      "id": "external:handle.write",
+      "kind": "external",
+      "name": "handle.write",
+      "summary": ""
+    },
+    {
+      "id": "external:sources.keys",
+      "kind": "external",
+      "name": "sources.keys",
+      "summary": ""
+    },
+    {
+      "id": "external:self.assertIn",
+      "kind": "external",
+      "name": "self.assertIn",
+      "summary": ""
+    },
+    {
       "id": "external:app.create_app",
       "kind": "external",
       "name": "app.create_app",
@@ -20692,21 +21723,21 @@
       "summary": ""
     },
     {
-      "id": "external:self.assertTrue",
+      "id": "external:webdriver.ChromeOptions",
       "kind": "external",
-      "name": "self.assertTrue",
-      "summary": ""
-    },
-    {
-      "id": "external:selenium.webdriver",
-      "kind": "external",
-      "name": "selenium.webdriver",
+      "name": "webdriver.ChromeOptions",
       "summary": ""
     },
     {
       "id": "external:options.add_argument",
       "kind": "external",
       "name": "options.add_argument",
+      "summary": ""
+    },
+    {
+      "id": "external:webdriver.Chrome",
+      "kind": "external",
+      "name": "webdriver.Chrome",
       "summary": ""
     },
     {
@@ -20740,12 +21771,6 @@
       "summary": ""
     },
     {
-      "id": "external:self.assertIn",
-      "kind": "external",
-      "name": "self.assertIn",
-      "summary": ""
-    },
-    {
       "id": "external:send_keys",
       "kind": "external",
       "name": "send_keys",
@@ -20770,15 +21795,15 @@
       "summary": ""
     },
     {
-      "id": "external:base64.b64encode",
+      "id": "external:decode",
       "kind": "external",
-      "name": "base64.b64encode",
+      "name": "decode",
       "summary": ""
     },
     {
-      "id": "external:self.assertEqual",
+      "id": "external:base64.b64encode",
       "kind": "external",
-      "name": "self.assertEqual",
+      "name": "base64.b64encode",
       "summary": ""
     },
     {
@@ -20983,11 +22008,12 @@
   "repo_id": "users-steven-documents-flasky-master-486dfca52949",
   "root_path": "/Users/steven/Documents/flasky-master",
   "stats": {
-    "edges": 2275,
-    "nodes": 717,
-    "python_files": 48,
-    "total_bytes": 256258,
-    "total_files": 99,
+    "edges": 2398,
+    "nodes": 744,
+    "python_files": 49,
+    "skipped_files": 1,
+    "total_bytes": 305898,
+    "total_files": 100,
     "warnings": 1
   },
   "toc": [
@@ -21008,7 +22034,7 @@
     },
     {
       "id": "group:tests",
-      "summary": "6 files",
+      "summary": "7 files",
       "title": "Package: tests"
     }
   ],

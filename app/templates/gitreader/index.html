@@ -1,10 +1,11 @@
 <!doctype html>
 <html lang="en">
-<head>
+  <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>GitReader Prototype</title>
   <link rel="stylesheet" href="{{ url_for('gitreader.static', filename='gitreader/styles.css') }}">
+  <link rel="stylesheet" href="https://unpkg.com/highlight.js@11.9.0/styles/atom-one-dark.min.css">
   <link rel="icon" href="{{ url_for('gitreader.static', filename='favicon.ico') }}">
 </head>
 <body>
@@ -46,6 +47,11 @@
           <h2>Reader</h2>
           <span class="pill">progressive disclosure</span>
         </div>
+        <div class="reader-controls" role="group" aria-label="Reader controls">
+          <span class="nav-label">View</span>
+          <button class="ghost-btn is-active" data-snippet-mode="body">Body</button>
+          <button class="ghost-btn" data-snippet-mode="full">Full file</button>
+        </div>
         <div class="code-surface" id="code-surface"></div>
       </section>
 
@@ -55,10 +61,33 @@
           <div class="canvas-controls" role="group" aria-label="Layout controls">
             <button class="ghost-btn" data-layout-action="cluster">Group by package</button>
             <button class="ghost-btn" data-layout-action="layer">Stack by layer</button>
+            <button class="ghost-btn" data-layout-action="free">Free</button>
           </div>
         </div>
+        <div class="canvas-controls canvas-controls--filters" role="group" aria-label="Graph filters">
+          <span class="canvas-label">Edges</span>
+          <button class="ghost-btn is-active" data-edge-filter="calls">Calls</button>
+          <button class="ghost-btn is-active" data-edge-filter="imports">Imports</button>
+          <button class="ghost-btn is-active" data-edge-filter="inherits">Inherits</button>
+          <button class="ghost-btn is-active" data-edge-filter="contains">Contains</button>
+          <button class="ghost-btn is-active" data-edge-filter="blueprint">Blueprints</button>
+          <span class="canvas-label">Nodes</span>
+          <button class="ghost-btn is-active" data-node-filter="external">Externals</button>
+          <span class="canvas-label">View</span>
+          <button class="ghost-btn" data-graph-action="focus">Focus</button>
+          <button class="ghost-btn" data-graph-action="reset">Reset</button>
+        </div>
+        <div class="canvas-legend" aria-label="Node legend">
+          <span class="legend-item"><span class="legend-swatch legend-file"></span>File</span>
+          <span class="legend-item"><span class="legend-swatch legend-class"></span>Class</span>
+          <span class="legend-item"><span class="legend-swatch legend-function"></span>Function</span>
+          <span class="legend-item"><span class="legend-swatch legend-method"></span>Method</span>
+          <span class="legend-item"><span class="legend-swatch legend-blueprint"></span>Blueprint</span>
+          <span class="legend-item"><span class="legend-swatch legend-external"></span>External</span>
+        </div>
         <div class="canvas-surface" id="canvas-surface">
-          <div class="canvas-grid" id="canvas-grid"></div>
+          <div class="canvas-graph" id="canvas-graph"></div>
+          <div class="canvas-overlay" id="canvas-overlay" aria-live="polite"></div>
         </div>
       </section>
 
@@ -82,6 +111,8 @@
     </main>
   </div>
 
+  <script src="https://unpkg.com/highlight.js@11.9.0/highlight.min.js"></script>
+  <script src="https://unpkg.com/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
   <script src="{{ url_for('gitreader.static', filename='gitreader/app.js') }}" defer></script>
 </body>
 </html>
