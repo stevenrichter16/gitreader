@@ -190,6 +190,63 @@ Real-world repositories are inconsistent. The pipeline must stay resilient and g
 
 ---
 
+## Phase 2: Interactive reader + canvas polish
+
+### Scope and outcomes
+
+- Scope - Keep Python-only parsing, focus on making the Reader and Canvas feel like a real product. Build on the Phase 1 graph and snippet endpoints. Add LLM narration, graph rendering, syntax highlighting, and a small repo picker UI.
+- Outputs - Real graph canvas with pan/zoom and selection, syntax-highlighted reader view, narrator panel that calls the LLM with caching, and richer UI states (loading, empty, error).
+- Success criteria - Users can choose a repo, browse a scoped TOC, explore an interactive graph, and read code with a coherent narrator flow.
+
+### Step-by-step build plan
+
+1. Graph rendering in the Canvas
+   - Integrate a graph library (Cytoscape.js or D3).
+   - Map `SymbolNode` and `GraphEdge` to styles by kind and confidence.
+   - Add pan/zoom, fit-to-view, and click selection.
+   - Keep external dependencies collapsed by default with a toggle to expand.
+
+2. Graph interactions and filters
+   - Filter edges by kind (imports, calls, inherits, contains).
+   - Add a "focus on selected" action to show the local neighborhood.
+   - Persist layout mode (cluster, layer, manual) in local storage.
+
+3. Reader upgrades
+   - Add syntax highlighting (Prism or highlight.js).
+   - Add a toggle for "body" vs "full file" view.
+   - Add copy snippet and jump-to-line controls.
+
+4. Narrator integration
+   - Implement the LLM API wrapper with prompt templates and caching.
+   - Add narrator loading and error states in the UI.
+   - Store and reuse narration by `(repo, commit, symbol, mode)`.
+
+5. Repo selection flow
+   - Add a minimal repo picker (local path, optional Git URL + ref).
+   - Surface scan warnings and file counts in the UI.
+   - Keep repo selection in the URL query string for shareable links.
+
+6. Performance pass
+   - Lazy-load graphs by scope and debounce TOC navigation.
+   - Cache snippets and narration in the client.
+   - Cap node count in the Canvas with progressive reveal.
+
+7. Validation and tests
+   - Smoke tests for graph rendering and TOC switching.
+   - Backend tests for narrator caching and repo selection.
+
+### UI enhancements and polish
+
+- Loading polish - skeleton states for TOC, reader, canvas, and narrator.
+- Reader clarity - line highlights for signature and key lines, clearer file breadcrumbs.
+- Canvas clarity - node legend, edge-type toggles, and hover tooltips with summaries.
+- Navigation - search in TOC and "recently viewed" chips.
+- Accessibility - keyboard navigation and focus outlines, ARIA labels on controls.
+- Responsive layout - better stacking on small screens, preserve narrative order.
+- Visual consistency - shared spacing scale, subtle separators, and consistent button styles.
+
+---
+
 ## Flasky reading path and narrator pacing
 
 Based on the book's table of contents and the commit tags in the Flasky repository, the first few chapters in the code follow a deliberate progression. Tags 1a through 3c map to the first few chapters: tag 1a is "Chapter 1 - initial version", tag 2a is "Chapter 2 - A complete application", tag 2b is "Chapter 2 - Dynamic routes", tag 3a is "Chapter 3 - Templates", tag 3b is "Chapter 3 - Templates with Flask-Bootstrap", and tag 3c is "Chapter 3 - Custom error pages". The book's table of contents likewise shows that Chapter 2 introduces initialization, routes, and dynamic routes, while Chapter 3 covers templates, Jinja2, variables, Bootstrap integration, and custom error pages. Building on this, here is a suggested reading path and how the LLM narrator can create a sense of suspense, plus a minimal static-analysis plan.
