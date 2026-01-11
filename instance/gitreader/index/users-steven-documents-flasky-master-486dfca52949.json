@@ -1,6 +1,6 @@
 {
-  "commit_sha": "5ae00d04d0089b4e5f185d4be077111c04953ea8",
-  "content_signature": "de0445504ac8b4e07e6b64a6cb0b37650b71e0fb",
+  "commit_sha": "52af57edf369bb0fd7f962f7b09c8e1954df5ddb",
+  "content_signature": "6368634777ea9c761f794f9ebe8a548e397ba1af",
   "edges": [
     {
       "confidence": "high",
@@ -14391,7 +14391,7 @@
       "target": "external:str"
     }
   ],
-  "generated_at": 1768107579.3806028,
+  "generated_at": 1768108777.401629,
   "nodes": [
     {
       "id": "file:flasky.py",
@@ -22012,7 +22012,7 @@
     "nodes": 744,
     "python_files": 49,
     "skipped_files": 1,
-    "total_bytes": 305898,
+    "total_bytes": 314653,
     "total_files": 100,
     "warnings": 1
   },

@@ -44,6 +44,7 @@
         this.graphNodes = [];
         this.graphEdges = [];
         this.nodeById = new Map();
+        this.fileNodesByPath = new Map();
         this.snippetCache = new Map();
         this.graphCache = new Map();
         this.narratorVisible = true;
@@ -319,9 +320,17 @@
     };
 
     GitReaderApp.prototype.setGraphData = function (graphData) {
+        var _this = this;
         this.graphNodes = Array.isArray(graphData.nodes) ? graphData.nodes : [];
         this.graphEdges = Array.isArray(graphData.edges) ? graphData.edges : [];
         this.nodeById = new Map(this.graphNodes.map(function (node) { return [node.id, node]; }));
+        this.fileNodesByPath = new Map();
+        this.graphNodes.forEach(function (node) {
+            if (node.kind !== 'file' || !node.location || !node.location.path) {
+                return;
+            }
+            _this.fileNodesByPath.set(_this.normalizePath(node.location.path), node);
+        });
     };
 
     GitReaderApp.prototype.loadSymbolSnippet = function (symbol) {
@@ -415,6 +424,118 @@
             kind: 'file',
             summary: 'Select a chapter to explore symbols.'
         };
+    };
+
+    GitReaderApp.prototype.normalizePath = function (path) {
+        return path.replace(/\\/g, '/');
+    };
+
+    GitReaderApp.prototype.getFileNodeForSymbol = function (symbol) {
+        var path = symbol.location && symbol.location.path ? symbol.location.path : null;
+        if (!path) {
+            return null;
+        }
+        return this.fileNodesByPath.get(this.normalizePath(path)) || null;
+    };
+
+    GitReaderApp.prototype.isModifierClick = function (event) {
+        if (!event) {
+            return false;
+        }
+        return Boolean(event.metaKey || event.ctrlKey);
+    };
+
+    GitReaderApp.prototype.isFileNodeActive = function (fileNode) {
+        var _a, _b;
+        if (this.currentSymbol && this.currentSymbol.kind === 'file') {
+            if (this.currentSymbol.id === fileNode.id) {
+                return true;
+            }
+            var currentPath = (_a = this.currentSymbol.location) && _a.path;
+            var filePath = (_b = fileNode.location) && _b.path;
+            if (currentPath && filePath && this.normalizePath(currentPath) === this.normalizePath(filePath)) {
+                return true;
+            }
+        }
+        if (!this.graphInstance) {
+            return false;
+        }
+        var element = this.graphInstance.$id(fileNode.id);
+        return Boolean(element && typeof element.selected === 'function' && element.selected());
+    };
+
+    GitReaderApp.prototype.highlightSymbolInFile = function (fileNode, symbol) {
+        var _this = this;
+        if (!this.currentSymbol || this.currentSymbol.id !== fileNode.id) {
+            return this.loadSymbolSnippet(fileNode)
+                .catch(function () {
+                    _this.renderCode(fileNode);
+                    _this.updateNarrator(fileNode);
+                })
+                .then(function () {
+                    _this.applyFocusHighlight(symbol);
+                });
+        }
+        this.applyFocusHighlight(symbol);
+        return Promise.resolve();
+    };
+
+    GitReaderApp.prototype.handleFileFocusClick = function (symbol, event) {
+        if (!this.isModifierClick(event)) {
+            return false;
+        }
+        if (symbol.kind !== 'function' && symbol.kind !== 'method') {
+            return false;
+        }
+        var fileNode = this.getFileNodeForSymbol(symbol);
+        if (!fileNode || !this.isFileNodeActive(fileNode)) {
+            return false;
+        }
+        if (this.graphInstance) {
+            this.graphInstance.$id(fileNode.id).select();
+            this.graphInstance.$id(symbol.id).select();
+        }
+        this.highlightSymbolInFile(fileNode, symbol);
+        return true;
+    };
+
+    GitReaderApp.prototype.applyFocusHighlight = function (symbol) {
+        var _a, _b;
+        var start = ((_a = symbol.location) && _a.start_line) || 0;
+        var end = ((_b = symbol.location) && _b.end_line) || start;
+        if (!start) {
+            this.setCodeStatus('Line range unavailable.');
+            return;
+        }
+        this.clearFocusHighlights();
+        var firstLine = null;
+        var found = false;
+        for (var line = start; line <= end; line += 1) {
+            var lineEl = this.codeSurface.querySelector('[data-line="' + line + '"]');
+            if (!lineEl) {
+                continue;
+            }
+            lineEl.classList.add('is-focus');
+            if (!firstLine) {
+                firstLine = lineEl;
+            }
+            found = true;
+        }
+        if (!found) {
+            this.setCodeStatus('Selection outside snippet.');
+            return;
+        }
+        this.setCodeStatus('Highlighted ' + symbol.name + '.');
+        if (firstLine) {
+            firstLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    };
+
+    GitReaderApp.prototype.clearFocusHighlights = function () {
+        var lines = this.codeSurface.querySelectorAll('.code-line.is-focus');
+        Array.prototype.forEach.call(lines, function (line) {
+            line.classList.remove('is-focus');
+        });
     };
 
     GitReaderApp.prototype.setActiveToc = function (chapterId) {
@@ -577,6 +698,9 @@
             var nodeId = event.target.id();
             var node = _this.nodeById.get(nodeId);
             if (!node) {
+                return;
+            }
+            if (_this.handleFileFocusClick(node, event.originalEvent)) {
                 return;
             }
             event.target.select();

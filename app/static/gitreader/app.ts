@@ -121,6 +121,7 @@ class GitReaderApp {
     private graphNodes: SymbolNode[] = [];
     private graphEdges: GraphEdge[] = [];
     private nodeById: Map<string, SymbolNode> = new Map();
+    private fileNodesByPath: Map<string, SymbolNode> = new Map();
     private snippetCache: Map<string, SymbolSnippetResponse> = new Map();
     private graphCache: Map<string, ApiGraphResponse> = new Map();
     private narratorVisible = true;
@@ -412,6 +413,13 @@ class GitReaderApp {
         this.graphNodes = Array.isArray(graphData.nodes) ? graphData.nodes : [];
         this.graphEdges = Array.isArray(graphData.edges) ? graphData.edges : [];
         this.nodeById = new Map(this.graphNodes.map((node) => [node.id, node]));
+        this.fileNodesByPath = new Map();
+        this.graphNodes.forEach((node) => {
+            if (node.kind !== 'file' || !node.location?.path) {
+                return;
+            }
+            this.fileNodesByPath.set(this.normalizePath(node.location.path), node);
+        });
     }
 
     private async loadSymbolSnippet(symbol: SymbolNode): Promise<void> {
@@ -508,6 +516,110 @@ class GitReaderApp {
             return node.location.path;
         }
         return null;
+    }
+
+    private normalizePath(path: string): string {
+        return path.replace(/\\/g, '/');
+    }
+
+    private getFileNodeForSymbol(symbol: SymbolNode): SymbolNode | null {
+        const path = symbol.location?.path;
+        if (!path) {
+            return null;
+        }
+        return this.fileNodesByPath.get(this.normalizePath(path)) ?? null;
+    }
+
+    private isModifierClick(event?: MouseEvent): boolean {
+        if (!event) {
+            return false;
+        }
+        return Boolean(event.metaKey || event.ctrlKey);
+    }
+
+    private isFileNodeActive(fileNode: SymbolNode): boolean {
+        if (this.currentSymbol && this.currentSymbol.kind === 'file') {
+            if (this.currentSymbol.id === fileNode.id) {
+                return true;
+            }
+            const currentPath = this.currentSymbol.location?.path;
+            const filePath = fileNode.location?.path;
+            if (currentPath && filePath && this.normalizePath(currentPath) === this.normalizePath(filePath)) {
+                return true;
+            }
+        }
+        if (!this.graphInstance) {
+            return false;
+        }
+        const element = this.graphInstance.$id(fileNode.id);
+        return Boolean(element && typeof element.selected === 'function' && element.selected());
+    }
+
+    private async highlightSymbolInFile(fileNode: SymbolNode, symbol: SymbolNode): Promise<void> {
+        if (!this.currentSymbol || this.currentSymbol.id !== fileNode.id) {
+            try {
+                await this.loadSymbolSnippet(fileNode);
+            } catch {
+                this.renderCode(fileNode);
+                this.updateNarrator(fileNode);
+            }
+        }
+        this.applyFocusHighlight(symbol);
+    }
+
+    private handleFileFocusClick(symbol: SymbolNode, event?: MouseEvent): boolean {
+        if (!this.isModifierClick(event)) {
+            return false;
+        }
+        if (symbol.kind !== 'function' && symbol.kind !== 'method') {
+            return false;
+        }
+        const fileNode = this.getFileNodeForSymbol(symbol);
+        if (!fileNode || !this.isFileNodeActive(fileNode)) {
+            return false;
+        }
+        if (this.graphInstance) {
+            this.graphInstance.$id(fileNode.id).select();
+            this.graphInstance.$id(symbol.id).select();
+        }
+        void this.highlightSymbolInFile(fileNode, symbol);
+        return true;
+    }
+
+    private applyFocusHighlight(symbol: SymbolNode): void {
+        const start = symbol.location?.start_line ?? 0;
+        const end = symbol.location?.end_line ?? start;
+        if (!start) {
+            this.setCodeStatus('Line range unavailable.');
+            return;
+        }
+        this.clearFocusHighlights();
+        let firstLine: HTMLElement | null = null;
+        let found = false;
+        for (let line = start; line <= end; line += 1) {
+            const lineEl = this.codeSurface.querySelector<HTMLElement>(`[data-line="${line}"]`);
+            if (!lineEl) {
+                continue;
+            }
+            lineEl.classList.add('is-focus');
+            if (!firstLine) {
+                firstLine = lineEl;
+            }
+            found = true;
+        }
+        if (!found) {
+            this.setCodeStatus('Selection outside snippet.');
+            return;
+        }
+        this.setCodeStatus(`Highlighted ${symbol.name}.`);
+        if (firstLine) {
+            firstLine.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    private clearFocusHighlights(): void {
+        this.codeSurface.querySelectorAll<HTMLElement>('.code-line.is-focus')
+            .forEach((line) => line.classList.remove('is-focus'));
     }
 
     private setActiveToc(chapterId: string): void {
@@ -670,10 +782,13 @@ class GitReaderApp {
         if (this.graphEventsBound || !this.graphInstance) {
             return;
         }
-        this.graphInstance.on('tap', 'node', (event: { target: { id: () => string } }) => {
+        this.graphInstance.on('tap', 'node', (event: { target: { id: () => string }; originalEvent?: MouseEvent }) => {
             const nodeId = event.target.id();
             const node = this.nodeById.get(nodeId);
             if (!node) {
+                return;
+            }
+            if (this.handleFileFocusClick(node, event.originalEvent)) {
                 return;
             }
             event.target.select();

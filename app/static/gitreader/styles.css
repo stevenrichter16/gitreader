@@ -328,6 +328,11 @@ body {
     border-radius: 8px;
 }
 
+.code-line.is-focus {
+    background: rgba(35, 122, 120, 0.35);
+    border-radius: 8px;
+}
+
 .code-line.is-jump {
     background: rgba(35, 122, 120, 0.3);
     border-radius: 8px;
