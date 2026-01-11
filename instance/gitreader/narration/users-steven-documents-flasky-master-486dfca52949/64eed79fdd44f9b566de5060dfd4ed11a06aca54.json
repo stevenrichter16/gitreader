@@ -1,0 +1,46 @@
+{
+  "created_at": 1768146120.769035,
+  "response": {
+    "cached": false,
+    "connections": [
+      "index",
+      "toc",
+      "graph",
+      "narrate",
+      "symbol",
+      "_repo_spec_from_request",
+      "_load_index",
+      "_load_symbol_snippet"
+    ],
+    "hook": "Dive into the intricate world of GitReader's routes, where API endpoints orchestrate the flow of data and user interactions.",
+    "key_lines": [
+      {
+        "line": 11,
+        "text": "@gitreader.route('/')"
+      },
+      {
+        "line": 12,
+        "text": "def index():"
+      },
+      {
+        "line": 66,
+        "text": "@gitreader.route('/api/narrate', methods=['POST'])"
+      },
+      {
+        "line": 68,
+        "text": "payload = request.get_json(silent=True) or {}"
+      }
+    ],
+    "mode": "hook",
+    "model": "gpt-4o-mini",
+    "next_thread": "Follow the nearest referenced symbol to continue the thread.",
+    "prompt_version": "v1",
+    "source": "openai",
+    "summary": [
+      "This file defines the routes for the GitReader application, handling requests for various functionalities like narrating symbols and loading graphs.",
+      "It employs Flask to manage HTTP requests and responses, ensuring seamless communication between the client and server."
+    ],
+    "symbol_id": "file:app/gitreader/routes.py",
+    "symbol_name": "app/gitreader/routes.py"
+  }
+}

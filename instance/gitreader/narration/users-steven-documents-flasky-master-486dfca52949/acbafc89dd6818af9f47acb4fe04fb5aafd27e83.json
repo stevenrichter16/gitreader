@@ -1,0 +1,41 @@
+{
+  "created_at": 1768110879.5239701,
+  "response": {
+    "cached": false,
+    "connections": [
+      "imports <- app/auth/views.py",
+      "contains -> send_async_email",
+      "contains -> send_email",
+      "imports -> threading",
+      "imports -> flask",
+      "imports -> flask_mail",
+      "imports -> app/__init__.py"
+    ],
+    "hook": "connections",
+    "key_lines": [
+      {
+        "line": 7,
+        "text": "def send_async_email(app, msg):"
+      },
+      {
+        "line": 12,
+        "text": "def send_email(to, subject, template, **kwargs):"
+      },
+      {
+        "line": 18,
+        "text": "thr = Thread(target=send_async_email, args=[app, msg])"
+      }
+    ],
+    "mode": "connections",
+    "model": "gpt-4o-mini",
+    "next_thread": "Follow the nearest referenced symbol to continue the thread.",
+    "prompt_version": "v1",
+    "source": "openai",
+    "summary": [
+      "This module handles email sending functionality within a Flask application.",
+      "It utilizes threading to send emails asynchronously, enhancing performance."
+    ],
+    "symbol_id": "file:app/email.py",
+    "symbol_name": "app/email.py"
+  }
+}

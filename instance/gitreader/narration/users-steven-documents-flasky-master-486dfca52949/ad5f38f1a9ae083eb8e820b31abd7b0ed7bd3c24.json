@@ -1,0 +1,33 @@
+{
+  "created_at": 1768146170.023138,
+  "response": {
+    "cached": false,
+    "connections": [
+      "calls <- toc (function)",
+      "calls <- graph (function)",
+      "calls -> flask.jsonify (external)"
+    ],
+    "hook": "_error_response",
+    "key_lines": [
+      {
+        "line": 149,
+        "text": "def _error_response(code: str, message: str, status: int = 400, details: dict | None = None):"
+      },
+      {
+        "line": 158,
+        "text": "return jsonify(payload), status"
+      }
+    ],
+    "mode": "hook",
+    "model": "gpt-4o-mini",
+    "next_thread": "Follow the nearest referenced symbol to continue the thread.",
+    "prompt_version": "v1",
+    "source": "openai",
+    "summary": [
+      "Constructs a structured error response for API calls.",
+      "Utilizes Flask's jsonify to return a JSON response with an HTTP status code."
+    ],
+    "symbol_id": "symbol:app.gitreader.routes._error_response",
+    "symbol_name": "_error_response"
+  }
+}

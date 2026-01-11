@@ -1,0 +1,36 @@
+{
+  "created_at": 1768110859.748478,
+  "response": {
+    "cached": false,
+    "connections": [
+      "calls -> app.app_context (external)",
+      "calls -> app.mail (external)"
+    ],
+    "hook": "send_async_email function",
+    "key_lines": [
+      {
+        "line": 7,
+        "text": "def send_async_email(app, msg):"
+      },
+      {
+        "line": 8,
+        "text": "with app.app_context():"
+      },
+      {
+        "line": 9,
+        "text": "mail.send(msg)"
+      }
+    ],
+    "mode": "connections",
+    "model": "gpt-4o-mini",
+    "next_thread": "Follow the nearest referenced symbol to continue the thread.",
+    "prompt_version": "v1",
+    "source": "openai",
+    "summary": [
+      "This function sends an email asynchronously using the provided app context.",
+      "It utilizes the Flask application's mail feature to dispatch the message."
+    ],
+    "symbol_id": "symbol:app.email.send_async_email",
+    "symbol_name": "send_async_email"
+  }
+}

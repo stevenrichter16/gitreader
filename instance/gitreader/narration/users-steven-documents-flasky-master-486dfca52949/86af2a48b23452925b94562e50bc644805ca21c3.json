@@ -1,0 +1,46 @@
+{
+  "created_at": 1768146089.3336089,
+  "response": {
+    "cached": false,
+    "connections": [
+      "contains -> make_shell_context (function)",
+      "contains -> test (function)",
+      "contains -> profile (function)",
+      "contains -> deploy (function)",
+      "imports -> os (external)",
+      "imports -> dotenv (external)",
+      "imports -> sys (external)",
+      "imports -> click (external)"
+    ],
+    "hook": "flasky.py",
+    "key_lines": [
+      {
+        "line": 4,
+        "text": "dotenv_path = os.path.join(os.path.dirname(__file__), '.env')"
+      },
+      {
+        "line": 20,
+        "text": "app = create_app(os.getenv('FLASK_CONFIG') or 'default')"
+      },
+      {
+        "line": 30,
+        "text": "@app.cli.command()"
+      },
+      {
+        "line": 73,
+        "text": "def deploy():"
+      }
+    ],
+    "mode": "hook",
+    "model": "gpt-4o-mini",
+    "next_thread": "Follow the nearest referenced symbol to continue the thread.",
+    "prompt_version": "v1",
+    "source": "openai",
+    "summary": [
+      "This script initializes a Flask application with environment variables loaded from a .env file.",
+      "It provides commands for testing, profiling, and deployment tasks, enhancing the development workflow."
+    ],
+    "symbol_id": "file:flasky.py",
+    "symbol_name": "flasky.py"
+  }
+}

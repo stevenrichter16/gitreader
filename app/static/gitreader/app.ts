@@ -88,6 +88,26 @@ interface HighlightRange {
     end_line: number;
 }
 
+interface NarrationKeyLine {
+    line: number;
+    text: string;
+}
+
+interface NarrationResponse {
+    mode: NarrationMode;
+    symbol_id: string;
+    symbol_name: string;
+    hook?: string;
+    summary?: string[];
+    key_lines?: NarrationKeyLine[];
+    connections?: string[];
+    next_thread?: string;
+    cached?: boolean;
+    source?: string;
+    model?: string;
+    prompt_version?: string;
+}
+
 type SnippetMode = 'body' | 'full';
 
 type GraphLayoutMode = 'cluster' | 'layer' | 'free';
@@ -124,6 +144,8 @@ class GitReaderApp {
     private fileNodesByPath: Map<string, SymbolNode> = new Map();
     private snippetCache: Map<string, SymbolSnippetResponse> = new Map();
     private graphCache: Map<string, ApiGraphResponse> = new Map();
+    private narratorCache: Map<string, NarrationResponse> = new Map();
+    private narratorRequestToken = 0;
     private narratorVisible = true;
     private graphInstance: any | null = null;
     private graphEventsBound = false;
@@ -180,11 +202,12 @@ class GitReaderApp {
         await this.loadChapter(defaultChapterId);
     }
 
-    private async fetchJson<T>(url: string): Promise<T> {
+    private async fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
+        const headers = new Headers(init?.headers);
+        headers.set('Accept', 'application/json');
         const response = await fetch(url, {
-            headers: {
-                Accept: 'application/json',
-            },
+            ...init,
+            headers,
         });
         if (!response.ok) {
             throw new Error(`Request failed: ${response.status}`);
@@ -386,7 +409,7 @@ class GitReaderApp {
         this.renderGraph(nodes, edges);
         this.loadSymbolSnippet(focus).catch(() => {
             this.renderCode(focus);
-            this.updateNarrator(focus);
+            void this.updateNarrator(focus);
         });
     }
 
@@ -425,7 +448,7 @@ class GitReaderApp {
     private async loadSymbolSnippet(symbol: SymbolNode): Promise<void> {
         if (!this.canFetchSnippet(symbol)) {
             this.renderCode(symbol);
-            this.updateNarrator(symbol);
+            void this.updateNarrator(symbol);
             return;
         }
         const section = this.getSnippetSection(symbol);
@@ -433,7 +456,7 @@ class GitReaderApp {
         const cached = this.snippetCache.get(cacheKey);
         if (cached) {
             this.renderCode(symbol, cached);
-            this.updateNarrator(symbol);
+            void this.updateNarrator(symbol);
             return;
         }
         const response = await this.fetchJson<SymbolSnippetResponse>(
@@ -441,7 +464,7 @@ class GitReaderApp {
         );
         this.snippetCache.set(cacheKey, response);
         this.renderCode(symbol, response);
-        this.updateNarrator(symbol);
+        void this.updateNarrator(symbol);
     }
 
     private getSnippetSection(symbol: SymbolNode): string {
@@ -561,7 +584,7 @@ class GitReaderApp {
                 await this.loadSymbolSnippet(fileNode);
             } catch {
                 this.renderCode(fileNode);
-                this.updateNarrator(fileNode);
+                void this.updateNarrator(fileNode);
             }
         }
         this.applyFocusHighlight(symbol);
@@ -794,7 +817,7 @@ class GitReaderApp {
             event.target.select();
             this.loadSymbolSnippet(node).catch(() => {
                 this.renderCode(node);
-                this.updateNarrator(node);
+                void this.updateNarrator(node);
             });
         });
         this.graphEventsBound = true;
@@ -923,74 +946,127 @@ class GitReaderApp {
         layout.run();
     }
 
-    private updateNarrator(symbol: SymbolNode): void {
-        const narration = this.getNarration(symbol, this.currentMode);
+    private async updateNarrator(symbol: SymbolNode): Promise<void> {
+        const mode = this.currentMode;
+        const section = this.getSnippetSection(symbol);
+        const cacheKey = `${symbol.id}:${mode}:${section}`;
+        const cached = this.narratorCache.get(cacheKey);
+        if (cached) {
+            this.renderNarration(symbol, cached);
+            return;
+        }
+        const requestToken = ++this.narratorRequestToken;
+        this.renderNarratorLoading(symbol);
+        try {
+            const response = await this.fetchJson<NarrationResponse>('/gitreader/api/narrate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: symbol.id,
+                    mode,
+                    section,
+                }),
+            });
+            if (requestToken !== this.narratorRequestToken) {
+                return;
+            }
+            if (!response || (response as unknown as { error?: object }).error) {
+                throw new Error('Narrator unavailable.');
+            }
+            this.narratorCache.set(cacheKey, response);
+            this.renderNarration(symbol, response);
+        } catch (error) {
+            if (requestToken !== this.narratorRequestToken) {
+                return;
+            }
+            const message = error instanceof Error ? error.message : 'Narrator unavailable.';
+            this.renderNarratorError(symbol, message);
+        }
+    }
+
+    private renderNarratorLoading(symbol: SymbolNode): void {
         this.narratorOutput.innerHTML = `
-            <p class="eyebrow">${narration.eyebrow}</p>
-            <h3>${narration.title}</h3>
-            ${narration.body}
+            <p class="eyebrow">Narrator</p>
+            <h3>Listening to ${this.escapeHtml(symbol.name)}</h3>
+            <p>Drafting the next beat in the story.</p>
         `;
     }
 
-    private getNarration(symbol: SymbolNode, mode: NarrationMode): { eyebrow: string; title: string; body: string } {
-        const name = symbol.name;
-        switch (mode) {
-            case 'summary':
-                return {
-                    eyebrow: 'What it does',
-                    title: `A clear role for ${name}`,
-                    body: `
-                        <p>${name} brings structure to this chapter and passes context forward.</p>
-                        <ul>
-                            <li>Focuses attention on the next layer of the app.</li>
-                            <li>Turns configuration into action.</li>
-                            <li>Hints at the next extension to unlock.</li>
-                        </ul>
-                    `,
-                };
-            case 'key_lines':
-                return {
-                    eyebrow: 'Key lines',
-                    title: 'Lines to watch',
-                    body: `
-                        <ul>
-                            <li>Line 1: the signature promises intent.</li>
-                            <li>Line 3: a framework call shapes control flow.</li>
-                            <li>Line 7: handoff to the next chapter.</li>
-                        </ul>
-                    `,
-                };
-            case 'connections':
-                return {
-                    eyebrow: 'Connections',
-                    title: 'How it links',
-                    body: `
-                        <ul>
-                            <li>Bridges configuration into the main blueprint.</li>
-                            <li>Feeds data toward templates and views.</li>
-                            <li>Creates the seam for extensions to attach.</li>
-                        </ul>
-                    `,
-                };
-            case 'next':
-                return {
-                    eyebrow: 'Next thread',
-                    title: 'Where to go next',
-                    body: `
-                        <p>Follow the blueprint registration to see the story branch into routes.</p>
-                    `,
-                };
-            case 'hook':
-            default:
-                return {
-                    eyebrow: 'Hook',
-                    title: `The quiet setup behind ${name}`,
-                    body: `
-                        <p>At first glance this looks simple, but every line hints at the next reveal.</p>
-                        <p>What happens once the request arrives?</p>
-                    `,
-                };
+    private renderNarratorError(symbol: SymbolNode, message: string): void {
+        this.narratorOutput.innerHTML = `
+            <p class="eyebrow">Narrator</p>
+            <h3>Unable to narrate ${this.escapeHtml(symbol.name)}</h3>
+            <p>${this.escapeHtml(message)}</p>
+        `;
+    }
+
+    private renderNarration(symbol: SymbolNode, narration: NarrationResponse): void {
+        const formatted = this.formatNarration(symbol, narration, this.currentMode);
+        this.narratorOutput.innerHTML = `
+            <p class="eyebrow">${formatted.eyebrow}</p>
+            <h3>${formatted.title}</h3>
+            ${formatted.body}
+        `;
+    }
+
+    private formatNarration(
+        symbol: SymbolNode,
+        narration: NarrationResponse,
+        mode: NarrationMode,
+    ): { eyebrow: string; title: string; body: string } {
+        const name = this.escapeHtml(symbol.name);
+        if (mode === 'summary') {
+            const items = (narration.summary ?? []).map((item) => this.escapeHtml(item));
+            const body = items.length > 0
+                ? `<ul>${items.map((item) => `<li>${item}</li>`).join('')}</ul>`
+                : `<p>No summary yet for ${name}.</p>`;
+            return {
+                eyebrow: 'What it does',
+                title: `A clear role for ${name}`,
+                body,
+            };
         }
+        if (mode === 'key_lines') {
+            const lines = narration.key_lines ?? [];
+            const body = lines.length > 0
+                ? `<ul>${lines.map((line) => {
+                    const label = `Line ${line.line}: ${line.text}`;
+                    return `<li>${this.escapeHtml(label)}</li>`;
+                }).join('')}</ul>`
+                : `<p>No key lines captured yet.</p>`;
+            return {
+                eyebrow: 'Key lines',
+                title: `Lines to watch in ${name}`,
+                body,
+            };
+        }
+        if (mode === 'connections') {
+            const items = (narration.connections ?? []).map((item) => this.escapeHtml(item));
+            const body = items.length > 0
+                ? `<ul>${items.map((item) => `<li>${item}</li>`).join('')}</ul>`
+                : `<p>Connections are still being mapped.</p>`;
+            return {
+                eyebrow: 'Connections',
+                title: `How ${name} links`,
+                body,
+            };
+        }
+        if (mode === 'next') {
+            const thread = narration.next_thread ? this.escapeHtml(narration.next_thread) : 'No next thread yet.';
+            return {
+                eyebrow: 'Next thread',
+                title: 'Where to go next',
+                body: `<p>${thread}</p>`,
+            };
+        }
+        const hook = narration.hook ? this.escapeHtml(narration.hook) : `A quiet setup around ${name}.`;
+        return {
+            eyebrow: 'Hook',
+            title: `The quiet setup behind ${name}`,
+            body: `<p>${hook}</p>`,
+        };
     }
 
     private setMode(mode: NarrationMode): void {
@@ -1001,7 +1077,7 @@ class GitReaderApp {
         const chapterId = this.getActiveChapterId();
         const nodes = this.filterNodesForChapter(chapterId ?? '');
         const focus = this.pickFocusNode(nodes);
-        this.updateNarrator(focus);
+        void this.updateNarrator(focus);
     }
 
     private setLayout(layout: string): void {

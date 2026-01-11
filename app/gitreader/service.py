@@ -129,6 +129,18 @@ def get_symbol_snippet(
     node = index.nodes.get(symbol_id)
     if not node:
         raise ValueError('Symbol not found')
+    payload = build_symbol_snippet(index, node, max_lines=max_lines, section=section)
+    payload['warnings'] = [warning.to_dict() for warning in index.warnings]
+    payload['stats'] = dict(index.stats)
+    return payload
+
+
+def build_symbol_snippet(
+    index: RepoIndex,
+    node,
+    max_lines: int = DEFAULT_SNIPPET_LINES,
+    section: str = 'full',
+) -> dict:
     if not node.location or not node.location.path:
         raise ValueError('Symbol has no location')
 
@@ -167,8 +179,6 @@ def get_symbol_snippet(
         'highlights': highlights,
         'section': section,
         'snippet': snippet,
-        'warnings': [warning.to_dict() for warning in index.warnings],
-        'stats': dict(index.stats),
     }
 
 

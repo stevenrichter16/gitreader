@@ -1,0 +1,45 @@
+{
+  "created_at": 1768146313.133217,
+  "response": {
+    "cached": false,
+    "connections": [
+      "calls -> app.main.main",
+      "calls -> app.decorators.permission_required",
+      "calls -> first",
+      "calls -> flask_login.current_user",
+      "calls -> commit",
+      "calls -> flask.flash",
+      "calls -> flask.redirect"
+    ],
+    "hook": "function_definition",
+    "key_lines": [
+      {
+        "line": 167,
+        "text": "def follow(username):"
+      },
+      {
+        "line": 168,
+        "text": "user = User.query.filter_by(username=username).first()"
+      },
+      {
+        "line": 170,
+        "text": "flash('Invalid user.')"
+      },
+      {
+        "line": 175,
+        "text": "current_user.follow(user)"
+      }
+    ],
+    "mode": "key_lines",
+    "model": "gpt-4o-mini",
+    "next_thread": "Follow the nearest referenced symbol to continue the thread.",
+    "prompt_version": "v1",
+    "source": "openai",
+    "summary": [
+      "Defines a route for following a user in the application.",
+      "Checks if the user exists and if the current user is already following them."
+    ],
+    "symbol_id": "symbol:app.main.views.follow",
+    "symbol_name": "follow"
+  }
+}

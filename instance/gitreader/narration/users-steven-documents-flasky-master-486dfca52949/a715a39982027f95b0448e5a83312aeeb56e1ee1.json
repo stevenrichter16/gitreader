@@ -1,0 +1,47 @@
+{
+  "created_at": 1768146184.05299,
+  "response": {
+    "cached": false,
+    "connections": [
+      "calls -> scope.startswith (external)",
+      "calls -> _apply_scope_paths (function)",
+      "calls -> _group_paths (function)",
+      "calls -> _story_scope_paths (function)"
+    ],
+    "hook": "_filter_graph",
+    "key_lines": [
+      {
+        "line": 161,
+        "text": "def _filter_graph(repo_index, scope: str):"
+      },
+      {
+        "line": 162,
+        "text": "if not scope or scope == 'full':"
+      },
+      {
+        "line": 164,
+        "text": "if scope.startswith('group:'):"
+      },
+      {
+        "line": 171,
+        "text": "return list(repo_index.nodes.values()), list(repo_index.edges)"
+      },
+      {
+        "line": 174,
+        "text": "return _apply_scope_paths(repo_index, allowed_paths)"
+      }
+    ],
+    "mode": "hook",
+    "model": "gpt-4o-mini",
+    "next_thread": "Follow the nearest referenced symbol to continue the thread.",
+    "prompt_version": "v1",
+    "source": "openai",
+    "summary": [
+      "Filters nodes and edges from a repository index based on a given scope.",
+      "Handles different scopes: full, group, and story.",
+      "Returns appropriate nodes and edges or applies specific path filters."
+    ],
+    "symbol_id": "symbol:app.gitreader.routes._filter_graph",
+    "symbol_name": "_filter_graph"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "created_at": 1768110807.3619862,
+  "response": {
+    "cached": false,
+    "connections": [
+      "contains <- flasky.py (file)",
+      "calls -> dict (external)"
+    ],
+    "hook": "make_shell_context",
+    "key_lines": [
+      {
+        "line": 25,
+        "text": "def make_shell_context():"
+      },
+      {
+        "line": 26,
+        "text": "return dict(db=db, User=User, Follow=Follow, Role=Role,"
+      },
+      {
+        "line": 27,
+        "text": "Permission=Permission, Post=Post, Comment=Comment)"
+      }
+    ],
+    "mode": "next",
+    "model": "gpt-4o-mini",
+    "next_thread": "Follow the nearest referenced symbol to continue the thread.",
+    "prompt_version": "v1",
+    "source": "openai",
+    "summary": [
+      "Defines a shell context for the Flask application.",
+      "Returns a dictionary of essential application objects."
+    ],
+    "symbol_id": "symbol:flasky.make_shell_context",
+    "symbol_name": "make_shell_context"
+  }
+}

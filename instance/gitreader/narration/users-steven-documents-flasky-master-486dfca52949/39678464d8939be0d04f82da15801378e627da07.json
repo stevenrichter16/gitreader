@@ -1,0 +1,46 @@
+{
+  "created_at": 1768146316.456527,
+  "response": {
+    "cached": false,
+    "connections": [
+      "calls -> app.main.main",
+      "calls -> app.decorators.permission_required",
+      "calls -> first",
+      "calls -> flask_login.current_user",
+      "calls -> commit",
+      "calls -> flask.flash",
+      "calls -> flask.redirect"
+    ],
+    "hook": "function_follow",
+    "key_lines": [
+      {
+        "line": 167,
+        "text": "def follow(username):"
+      },
+      {
+        "line": 168,
+        "text": "user = User.query.filter_by(username=username).first()"
+      },
+      {
+        "line": 171,
+        "text": "return redirect(url_for('.index'))"
+      },
+      {
+        "line": 176,
+        "text": "db.session.commit()"
+      }
+    ],
+    "mode": "summary",
+    "model": "gpt-4o-mini",
+    "next_thread": "Follow the nearest referenced symbol to continue the thread.",
+    "prompt_version": "v1",
+    "source": "openai",
+    "summary": [
+      "The 'follow' function allows a user to follow another user by their username.",
+      "It checks if the specified user exists and if the current user is already following them.",
+      "If successful, it updates the database and provides feedback to the user."
+    ],
+    "symbol_id": "symbol:app.main.views.follow",
+    "symbol_name": "follow"
+  }
+}

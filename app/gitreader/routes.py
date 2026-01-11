@@ -4,6 +4,7 @@ from flask import current_app, jsonify, render_template, request
 
 from . import gitreader
 from .models import GraphEdge, RepoSpec, SourceLocation, SymbolNode
+from .narrator import load_cached_narration, narrate_symbol
 from .service import get_repo_index, get_symbol_snippet
 
 
@@ -16,6 +17,7 @@ def index():
 def toc():
     spec = _repo_spec_from_request()
     mode = request.args.get('mode', 'story')
+    cache_root = os.path.join(current_app.instance_path, 'gitreader')
     try:
         repo_index = _load_index(spec)
     except ValueError as exc:
@@ -30,6 +32,7 @@ def toc():
         if not chapters:
             chapters = _build_tree_toc(repo_index)
             mode = 'tree'
+    chapters = _apply_cached_toc_summaries(chapters, repo_index, cache_root)
     return jsonify({
         'chapters': chapters,
         'mode': mode,
@@ -64,27 +67,30 @@ def graph():
 def narrate():
     payload = request.get_json(silent=True) or {}
     mode = payload.get('mode', 'hook')
-    symbol = payload.get('symbol', {})
-    name = symbol.get('name', 'this symbol')
-    narration = {
-        'mode': mode,
-        'symbol': name,
-        'hook': f"A quiet line in the code hints at what {name} will awaken.",
-        'summary': [
-            f"{name} establishes a new step in the story.",
-            'It gathers context and hands it to the next layer.',
-            'The shape suggests a path toward the next chapter.',
-        ],
-        'key_lines': [
-            {'line': 1, 'text': 'Signature reveals intent.'},
-            {'line': 4, 'text': 'First interaction with the framework.'},
-        ],
-        'connections': [
-            'Linked to the app factory for bootstrapping.',
-            'Feeds the template layer with data.',
-        ],
-        'next_thread': 'Follow the blueprint registration to see the world expand.',
-    }
+    symbol_id = payload.get('id')
+    if not symbol_id and isinstance(payload.get('symbol'), dict):
+        symbol_id = payload['symbol'].get('id')
+    if not symbol_id:
+        return _error_response(
+            'missing_id',
+            'Missing id',
+            status=400,
+            details={
+                'hint': 'Use POST /gitreader/api/narrate with {"id": "symbol:..."}',
+            },
+        )
+    if mode not in {'hook', 'summary', 'key_lines', 'connections', 'next'}:
+        return _error_response('bad_request', f'Unsupported mode: {mode}', status=400)
+    section = payload.get('section')
+    spec = _repo_spec_from_request()
+    try:
+        cache_root = os.path.join(current_app.instance_path, 'gitreader')
+        narration = narrate_symbol(spec, cache_root=cache_root, symbol_id=symbol_id, mode=mode, section=section)
+    except ValueError as exc:
+        return _error_response('bad_request', str(exc), status=400)
+    except Exception:
+        current_app.logger.exception('gitreader narrate failed')
+        return _error_response('server_error', 'Failed to narrate symbol', status=500)
     return jsonify(narration)
 
 
@@ -329,6 +335,72 @@ def _build_story_toc(repo_index):
             'scope': scope,
         })
     return chapters
+
+
+def _apply_cached_toc_summaries(chapters, repo_index, cache_root: str):
+    if not chapters:
+        return chapters
+    story_paths = _story_scope_paths(repo_index)
+    for chapter in chapters:
+        scope = chapter.get('scope') or chapter.get('id')
+        if not scope:
+            continue
+        if scope.startswith('story:'):
+            allowed_paths = story_paths.get(scope, set())
+        elif scope.startswith('group:'):
+            group = scope[len('group:'):]
+            allowed_paths = _group_paths(repo_index, group)
+        else:
+            allowed_paths = set()
+        summary = _cached_summary_for_paths(repo_index, cache_root, allowed_paths)
+        if summary:
+            chapter['summary'] = summary
+    return chapters
+
+
+def _cached_summary_for_paths(repo_index, cache_root: str, allowed_paths: set[str]) -> str | None:
+    if not allowed_paths:
+        return None
+    normalized_paths = {path.replace(os.sep, '/') for path in allowed_paths}
+    file_nodes = []
+    other_nodes = []
+    for node in repo_index.nodes.values():
+        location = node.location
+        if not location or not location.path:
+            continue
+        normalized = location.path.replace(os.sep, '/')
+        if normalized not in normalized_paths:
+            continue
+        if node.kind == 'file':
+            file_nodes.append(node)
+        elif node.kind in {'class', 'function', 'method'}:
+            other_nodes.append(node)
+    candidates = (file_nodes + other_nodes)[:12]
+    for node in candidates:
+        cached = load_cached_narration(repo_index, node, cache_root, mode='summary')
+        if not cached:
+            continue
+        summary = _extract_cached_summary(cached)
+        if summary:
+            return summary
+    return None
+
+
+def _extract_cached_summary(cached: dict) -> str:
+    summary_items = cached.get('summary')
+    if isinstance(summary_items, list) and summary_items:
+        return _compact_summary(summary_items[0])
+    hook = cached.get('hook') or cached.get('next_thread')
+    if isinstance(hook, str) and hook.strip():
+        return _compact_summary(hook)
+    return ''
+
+
+def _compact_summary(text: str, limit: int = 140) -> str:
+    cleaned = ' '.join(str(text).split())
+    if len(cleaned) <= limit:
+        return cleaned
+    return f'{cleaned[:limit - 3].rstrip()}...'
 
 
 def _story_scope_paths(repo_index):

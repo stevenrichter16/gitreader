@@ -1,0 +1,46 @@
+{
+  "created_at": 1768146249.998341,
+  "response": {
+    "cached": false,
+    "connections": [
+      "calls -> app.main.main",
+      "calls -> app.main.forms.EditProfileForm",
+      "calls -> form.validate_on_submit",
+      "calls -> flask.render_template",
+      "calls -> add",
+      "calls -> commit",
+      "calls -> flask.flash",
+      "calls -> flask.redirect"
+    ],
+    "hook": "edit_profile",
+    "key_lines": [
+      {
+        "line": 78,
+        "text": "def edit_profile():"
+      },
+      {
+        "line": 80,
+        "text": "if form.validate_on_submit():"
+      },
+      {
+        "line": 86,
+        "text": "flash('Your profile has been updated.')"
+      },
+      {
+        "line": 91,
+        "text": "return render_template('edit_profile.html', form=form)"
+      }
+    ],
+    "mode": "summary",
+    "model": "gpt-4o-mini",
+    "next_thread": "Follow the nearest referenced symbol to continue the thread.",
+    "prompt_version": "v1",
+    "source": "openai",
+    "summary": [
+      "Defines a route for editing user profiles, requiring login.",
+      "Handles form submission to update user details and render the profile edit form."
+    ],
+    "symbol_id": "symbol:app.main.views.edit_profile",
+    "symbol_name": "edit_profile"
+  }
+}

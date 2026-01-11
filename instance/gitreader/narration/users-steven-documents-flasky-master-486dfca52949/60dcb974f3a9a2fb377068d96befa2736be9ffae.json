@@ -1,0 +1,37 @@
+{
+  "created_at": 1768146295.6647942,
+  "response": {
+    "cached": false,
+    "connections": [
+      "calls -> flask_login.current_user",
+      "calls -> flask.redirect",
+      "calls -> flask.url_for"
+    ],
+    "hook": "before_request",
+    "key_lines": [
+      {
+        "line": 13,
+        "text": "def before_request():"
+      },
+      {
+        "line": 14,
+        "text": "if current_user.is_authenticated:"
+      },
+      {
+        "line": 20,
+        "text": "return redirect(url_for('auth.unconfirmed'))"
+      }
+    ],
+    "mode": "next",
+    "model": "gpt-4o-mini",
+    "next_thread": "Follow the nearest referenced symbol to continue the thread.",
+    "prompt_version": "v1",
+    "source": "openai",
+    "summary": [
+      "This function checks if the current user is authenticated.",
+      "If the user is not confirmed and the request is not for the auth blueprint, it redirects them."
+    ],
+    "symbol_id": "symbol:app.auth.views.before_request",
+    "symbol_name": "before_request"
+  }
+}

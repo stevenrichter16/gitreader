@@ -47,6 +47,8 @@
         this.fileNodesByPath = new Map();
         this.snippetCache = new Map();
         this.graphCache = new Map();
+        this.narratorCache = new Map();
+        this.narratorRequestToken = 0;
         this.narratorVisible = true;
         this.graphInstance = null;
         this.graphEventsBound = false;
@@ -79,12 +81,11 @@
         });
     };
 
-    GitReaderApp.prototype.fetchJson = function (url) {
-        return fetch(url, {
-            headers: {
-                Accept: 'application/json'
-            }
-        }).then(function (response) {
+    GitReaderApp.prototype.fetchJson = function (url, init) {
+        var headers = new Headers((init && init.headers) || {});
+        headers.set('Accept', 'application/json');
+        var options = Object.assign({}, init, { headers: headers });
+        return fetch(url, options).then(function (response) {
             if (!response.ok) {
                 throw new Error('Request failed: ' + response.status);
             }
@@ -1055,65 +1056,118 @@
     };
 
     GitReaderApp.prototype.updateNarrator = function (symbol) {
-        var narration = this.getNarration(symbol, this.currentMode);
-        this.narratorOutput.innerHTML =
-            '<p class="eyebrow">' + narration.eyebrow + '</p>' +
-            '<h3>' + narration.title + '</h3>' +
-            narration.body;
+        var _this = this;
+        var mode = this.currentMode;
+        var section = this.getSnippetSection(symbol);
+        var cacheKey = symbol.id + ':' + mode + ':' + section;
+        var cached = this.narratorCache.get(cacheKey);
+        if (cached) {
+            this.renderNarration(symbol, cached);
+            return Promise.resolve();
+        }
+        var requestToken = ++this.narratorRequestToken;
+        this.renderNarratorLoading(symbol);
+        return this.fetchJson('/gitreader/api/narrate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                id: symbol.id,
+                mode: mode,
+                section: section
+            })
+        }).then(function (response) {
+            if (requestToken !== _this.narratorRequestToken) {
+                return;
+            }
+            if (!response || response.error) {
+                throw new Error('Narrator unavailable.');
+            }
+            _this.narratorCache.set(cacheKey, response);
+            _this.renderNarration(symbol, response);
+        }).catch(function (error) {
+            if (requestToken !== _this.narratorRequestToken) {
+                return;
+            }
+            var message = error instanceof Error ? error.message : 'Narrator unavailable.';
+            _this.renderNarratorError(symbol, message);
+        });
     };
 
-    GitReaderApp.prototype.getNarration = function (symbol, mode) {
-        var name = symbol.name;
+    GitReaderApp.prototype.renderNarratorLoading = function (symbol) {
+        this.narratorOutput.innerHTML =
+            '<p class="eyebrow">Narrator</p>' +
+            '<h3>Listening to ' + escapeHtml(symbol.name) + '</h3>' +
+            '<p>Drafting the next beat in the story.</p>';
+    };
+
+    GitReaderApp.prototype.renderNarratorError = function (symbol, message) {
+        this.narratorOutput.innerHTML =
+            '<p class="eyebrow">Narrator</p>' +
+            '<h3>Unable to narrate ' + escapeHtml(symbol.name) + '</h3>' +
+            '<p>' + escapeHtml(message) + '</p>';
+    };
+
+    GitReaderApp.prototype.renderNarration = function (symbol, narration) {
+        var formatted = this.formatNarration(symbol, narration, this.currentMode);
+        this.narratorOutput.innerHTML =
+            '<p class="eyebrow">' + formatted.eyebrow + '</p>' +
+            '<h3>' + formatted.title + '</h3>' +
+            formatted.body;
+    };
+
+    GitReaderApp.prototype.formatNarration = function (symbol, narration, mode) {
+        var name = escapeHtml(symbol.name);
         if (mode === 'summary') {
+            var items = (narration.summary || []).map(function (item) { return escapeHtml(item); });
+            var body = items.length > 0
+                ? '<ul>' + items.map(function (item) { return '<li>' + item + '</li>'; }).join('') + '</ul>'
+                : '<p>No summary yet for ' + name + '.</p>';
             return {
                 eyebrow: 'What it does',
                 title: 'A clear role for ' + name,
-                body:
-                    '<p>' + name + ' brings structure to this chapter and passes context forward.</p>' +
-                    '<ul>' +
-                    '<li>Focuses attention on the next layer of the app.</li>' +
-                    '<li>Turns configuration into action.</li>' +
-                    '<li>Hints at the next extension to unlock.</li>' +
-                    '</ul>'
+                body: body
             };
         }
         if (mode === 'key_lines') {
+            var lines = narration.key_lines || [];
+            var body = lines.length > 0
+                ? '<ul>' + lines.map(function (line) {
+                    var label = 'Line ' + line.line + ': ' + line.text;
+                    return '<li>' + escapeHtml(label) + '</li>';
+                }).join('') + '</ul>'
+                : '<p>No key lines captured yet.</p>';
             return {
                 eyebrow: 'Key lines',
-                title: 'Lines to watch',
-                body:
-                    '<ul>' +
-                    '<li>Line 1: the signature promises intent.</li>' +
-                    '<li>Line 3: a framework call shapes control flow.</li>' +
-                    '<li>Line 7: handoff to the next chapter.</li>' +
-                    '</ul>'
+                title: 'Lines to watch in ' + name,
+                body: body
             };
         }
         if (mode === 'connections') {
+            var items = (narration.connections || []).map(function (item) { return escapeHtml(item); });
+            var body = items.length > 0
+                ? '<ul>' + items.map(function (item) { return '<li>' + item + '</li>'; }).join('') + '</ul>'
+                : '<p>Connections are still being mapped.</p>';
             return {
                 eyebrow: 'Connections',
-                title: 'How it links',
-                body:
-                    '<ul>' +
-                    '<li>Bridges configuration into the main blueprint.</li>' +
-                    '<li>Feeds data toward templates and views.</li>' +
-                    '<li>Creates the seam for extensions to attach.</li>' +
-                    '</ul>'
+                title: 'How ' + name + ' links',
+                body: body
             };
         }
         if (mode === 'next') {
+            var thread = narration.next_thread ? escapeHtml(narration.next_thread) : 'No next thread yet.';
             return {
                 eyebrow: 'Next thread',
                 title: 'Where to go next',
-                body: '<p>Follow the blueprint registration to see the story branch into routes.</p>'
+                body: '<p>' + thread + '</p>'
             };
         }
+        var hook = narration.hook ? escapeHtml(narration.hook) : 'A quiet setup around ' + name + '.';
         return {
             eyebrow: 'Hook',
             title: 'The quiet setup behind ' + name,
-            body:
-                '<p>At first glance this looks simple, but every line hints at the next reveal.</p>' +
-                '<p>What happens once the request arrives?</p>'
+            body: '<p>' + hook + '</p>'
         };
     };
 

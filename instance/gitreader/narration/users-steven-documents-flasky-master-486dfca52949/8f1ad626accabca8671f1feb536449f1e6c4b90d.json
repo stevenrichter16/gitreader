@@ -1,0 +1,46 @@
+{
+  "created_at": 1768146056.768364,
+  "response": {
+    "cached": false,
+    "connections": [
+      "calls -> command (external)",
+      "calls -> flask_migrate.upgrade (external)",
+      "calls -> app.models.Role (external)",
+      "calls -> app.models.User (external)"
+    ],
+    "hook": "deploy",
+    "key_lines": [
+      {
+        "line": 73,
+        "text": "def deploy():"
+      },
+      {
+        "line": 74,
+        "text": "\"\"\"Run deployment tasks.\"\"\""
+      },
+      {
+        "line": 76,
+        "text": "upgrade()"
+      },
+      {
+        "line": 79,
+        "text": "Role.insert_roles()"
+      },
+      {
+        "line": 82,
+        "text": "User.add_self_follows()"
+      }
+    ],
+    "mode": "hook",
+    "model": "gpt-4o-mini",
+    "next_thread": "Follow the nearest referenced symbol to continue the thread.",
+    "prompt_version": "v1",
+    "source": "openai",
+    "summary": [
+      "Defines a command-line interface command for deployment tasks.",
+      "Handles database migration, user role management, and self-following for users."
+    ],
+    "symbol_id": "symbol:flasky.deploy",
+    "symbol_name": "deploy"
+  }
+}

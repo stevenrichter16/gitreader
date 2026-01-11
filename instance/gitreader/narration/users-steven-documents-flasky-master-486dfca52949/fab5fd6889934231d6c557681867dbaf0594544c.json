@@ -1,0 +1,31 @@
+{
+  "created_at": 1768110820.4194481,
+  "response": {
+    "cached": false,
+    "connections": [
+      "contains <- Config (class)"
+    ],
+    "hook": "init_app",
+    "key_lines": [
+      {
+        "line": 25,
+        "text": "def init_app(app):"
+      },
+      {
+        "line": 26,
+        "text": "pass"
+      }
+    ],
+    "mode": "hook",
+    "model": "gpt-4o-mini",
+    "next_thread": "Follow the nearest referenced symbol to continue the thread.",
+    "prompt_version": "v1",
+    "source": "openai",
+    "summary": [
+      "Defines a static method for application initialization.",
+      "Currently, the method is a placeholder with no implementation."
+    ],
+    "symbol_id": "symbol:config.Config.init_app",
+    "symbol_name": "init_app"
+  }
+}
