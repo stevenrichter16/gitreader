@@ -2,7 +2,13 @@ import re
 import threading
 import time
 import unittest
-from selenium import webdriver
+
+try:
+    from selenium import webdriver
+    SELENIUM_AVAILABLE = True
+except ImportError:
+    webdriver = None
+    SELENIUM_AVAILABLE = False
 from app import create_app, db, fake
 from app.models import Role, User, Post
 
@@ -12,6 +18,8 @@ class SeleniumTestCase(unittest.TestCase):
     
     @classmethod
     def setUpClass(cls):
+        if not SELENIUM_AVAILABLE:
+            raise unittest.SkipTest('selenium is not installed')
         # start Chrome
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
@@ -79,7 +87,7 @@ class SeleniumTestCase(unittest.TestCase):
     def test_admin_home_page(self):
         # navigate to home page
         self.client.get('http://localhost:5000/')
-        self.assertTrue(re.search('Hello,\s+Stranger!',
+        self.assertTrue(re.search(r'Hello,\s+Stranger!',
                                   self.client.page_source))
 
         # navigate to login page
@@ -91,7 +99,7 @@ class SeleniumTestCase(unittest.TestCase):
             send_keys('john@example.com')
         self.client.find_element_by_name('password').send_keys('cat')
         self.client.find_element_by_name('submit').click()
-        self.assertTrue(re.search('Hello,\s+john!', self.client.page_source))
+        self.assertTrue(re.search(r'Hello,\s+john!', self.client.page_source))
 
         # navigate to the user's profile page
         self.client.find_element_by_link_text('Profile').click()

@@ -1,13 +1,50 @@
 from datetime import datetime
 import hashlib
+import time
 from werkzeug.security import generate_password_hash, check_password_hash
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+try:
+    from itsdangerous import URLSafeTimedSerializer as Serializer
+except ImportError:
+    from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from markdown import markdown
 import bleach
 from flask import current_app, request, url_for
 from flask_login import UserMixin, AnonymousUserMixin
 from app.exceptions import ValidationError
 from . import db, login_manager
+
+
+def _get_serializer():
+    return Serializer(current_app.config['SECRET_KEY'])
+
+
+def _encode_token(payload):
+    token = _get_serializer().dumps(payload)
+    if isinstance(token, bytes):
+        return token.decode('utf-8')
+    return token
+
+
+def _decode_token(token):
+    if isinstance(token, bytes):
+        token = token.decode('utf-8', errors='ignore')
+    try:
+        return _get_serializer().loads(token)
+    except Exception:
+        return None
+
+
+def _build_payload(payload, expiration):
+    payload = dict(payload)
+    payload['exp'] = time.time() + expiration
+    return payload
+
+
+def _is_expired(payload):
+    exp = payload.get('exp')
+    if exp is None:
+        return False
+    return time.time() > exp
 
 
 class Permission:
@@ -138,14 +175,12 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def generate_confirmation_token(self, expiration=3600):
-        s = Serializer(current_app.config['SECRET_KEY'], expiration)
-        return s.dumps({'confirm': self.id}).decode('utf-8')
+        payload = _build_payload({'confirm': self.id}, expiration)
+        return _encode_token(payload)
 
     def confirm(self, token):
-        s = Serializer(current_app.config['SECRET_KEY'])
-        try:
-            data = s.loads(token.encode('utf-8'))
-        except:
+        data = _decode_token(token)
+        if not data or _is_expired(data):
             return False
         if data.get('confirm') != self.id:
             return False
@@ -154,15 +189,13 @@ class User(UserMixin, db.Model):
         return True
 
     def generate_reset_token(self, expiration=3600):
-        s = Serializer(current_app.config['SECRET_KEY'], expiration)
-        return s.dumps({'reset': self.id}).decode('utf-8')
+        payload = _build_payload({'reset': self.id}, expiration)
+        return _encode_token(payload)
 
     @staticmethod
     def reset_password(token, new_password):
-        s = Serializer(current_app.config['SECRET_KEY'])
-        try:
-            data = s.loads(token.encode('utf-8'))
-        except:
+        data = _decode_token(token)
+        if not data or _is_expired(data):
             return False
         user = User.query.get(data.get('reset'))
         if user is None:
@@ -172,15 +205,15 @@ class User(UserMixin, db.Model):
         return True
 
     def generate_email_change_token(self, new_email, expiration=3600):
-        s = Serializer(current_app.config['SECRET_KEY'], expiration)
-        return s.dumps(
-            {'change_email': self.id, 'new_email': new_email}).decode('utf-8')
+        payload = _build_payload(
+            {'change_email': self.id, 'new_email': new_email},
+            expiration,
+        )
+        return _encode_token(payload)
 
     def change_email(self, token):
-        s = Serializer(current_app.config['SECRET_KEY'])
-        try:
-            data = s.loads(token.encode('utf-8'))
-        except:
+        data = _decode_token(token)
+        if not data or _is_expired(data):
             return False
         if data.get('change_email') != self.id:
             return False
@@ -254,16 +287,13 @@ class User(UserMixin, db.Model):
         return json_user
 
     def generate_auth_token(self, expiration):
-        s = Serializer(current_app.config['SECRET_KEY'],
-                       expires_in=expiration)
-        return s.dumps({'id': self.id}).decode('utf-8')
+        payload = _build_payload({'id': self.id}, expiration)
+        return _encode_token(payload)
 
     @staticmethod
     def verify_auth_token(token):
-        s = Serializer(current_app.config['SECRET_KEY'])
-        try:
-            data = s.loads(token)
-        except:
+        data = _decode_token(token)
+        if not data or _is_expired(data):
             return None
         return User.query.get(data['id'])
 
