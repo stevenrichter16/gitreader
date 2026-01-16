@@ -23,6 +23,7 @@
         this.codeSurface = getElement('code-surface');
         this.canvasGraph = getElement('canvas-graph');
         this.canvasOverlay = getElement('canvas-overlay');
+        this.traceList = getElement('canvas-trace-list');
         this.narratorOutput = getElement('narrator-output');
         this.modeButtons = document.querySelectorAll('.mode-btn');
         this.layoutButtons = document.querySelectorAll('.nav-btn[data-layout]');
@@ -55,8 +56,12 @@
         this.edgeFilters = new Set(['calls', 'imports', 'inherits', 'contains', 'blueprint']);
         this.showExternalNodes = true;
         this.focusedNodeId = null;
+        this.tracePaths = [];
+        this.selectedTraceIds = new Set();
         this.currentSymbol = null;
         this.currentSnippetText = '';
+        this.maxTraceDepth = 8;
+        this.maxTracePaths = 10;
     }
 
     GitReaderApp.prototype.init = function () {
@@ -174,6 +179,8 @@
                     _this.focusOnSelected();
                 } else if (action === 'reset') {
                     _this.resetGraphFocus();
+                } else if (action === 'clear-traces') {
+                    _this.clearTraceSelection();
                 }
             });
         });
@@ -222,6 +229,20 @@
                 event.preventDefault();
                 _this.jumpToInputLine();
             }
+        });
+
+        this.traceList.addEventListener('change', function (event) {
+            var target = event.target;
+            if (!target || target.type !== 'checkbox') {
+                return;
+            }
+            var traceId = target.value;
+            if (target.checked) {
+                _this.selectedTraceIds.add(traceId);
+            } else {
+                _this.selectedTraceIds.delete(traceId);
+            }
+            _this.applyTraceHighlight();
         });
     };
 
@@ -664,6 +685,7 @@
         var elements = this.buildGraphElements(nodes, edges);
         this.graphInstance.elements().remove();
         this.graphInstance.add(elements);
+        this.resetTracePanel();
         this.runGraphLayout();
         this.applyGraphFilters();
     };
@@ -702,6 +724,7 @@
                 return;
             }
             if (_this.handleFileFocusClick(node, event.originalEvent)) {
+                _this.updateCallTraces(node);
                 return;
             }
             event.target.select();
@@ -709,11 +732,13 @@
                 _this.renderCode(node);
                 _this.updateNarrator(node);
             });
+            _this.updateCallTraces(node);
         });
         this.graphEventsBound = true;
     };
 
     GitReaderApp.prototype.buildGraphElements = function (nodes, edges) {
+        var _this = this;
         var nodeElements = nodes.map(function (node) {
             return {
                 data: {
@@ -727,7 +752,7 @@
         var edgeElements = edges.map(function (edge, index) {
             return {
                 data: {
-                    id: 'edge:' + edge.source + ':' + edge.target + ':' + edge.kind + ':' + index,
+                    id: _this.buildEdgeId(edge, index),
                     source: edge.source,
                     target: edge.target,
                     kind: edge.kind,
@@ -736,6 +761,10 @@
             };
         });
         return nodeElements.concat(edgeElements);
+    };
+
+    GitReaderApp.prototype.buildEdgeId = function (edge, index) {
+        return 'edge:' + edge.source + ':' + edge.target + ':' + edge.kind + ':' + index;
     };
 
     GitReaderApp.prototype.getGraphStyles = function () {
@@ -795,6 +824,13 @@
                 }
             },
             {
+                selector: 'node[trace_dimmed = "true"]',
+                style: {
+                    'opacity': 0.15,
+                    'text-opacity': 0.15
+                }
+            },
+            {
                 selector: 'edge',
                 style: {
                     'line-color': '#bcae9c',
@@ -803,6 +839,12 @@
                     'target-arrow-shape': 'triangle',
                     'target-arrow-color': '#bcae9c',
                     'opacity': 0.7
+                }
+            },
+            {
+                selector: 'edge[trace_dimmed = "true"]',
+                style: {
+                    'opacity': 0.1
                 }
             },
             {
@@ -972,6 +1014,145 @@
             }
         });
         this.applyFocus();
+        this.applyTraceHighlight();
+    };
+
+    GitReaderApp.prototype.updateCallTraces = function (symbol) {
+        this.tracePaths = this.buildCallTracePaths(symbol.id);
+        this.selectedTraceIds.clear();
+        if (this.tracePaths.length > 0) {
+            this.selectedTraceIds.add(this.tracePaths[0].id);
+        }
+        this.renderTracePanel(symbol);
+        this.applyTraceHighlight();
+    };
+
+    GitReaderApp.prototype.resetTracePanel = function () {
+        this.tracePaths = [];
+        this.selectedTraceIds.clear();
+        this.renderTracePanel();
+        this.applyTraceHighlight();
+    };
+
+    GitReaderApp.prototype.clearTraceSelection = function () {
+        this.selectedTraceIds.clear();
+        this.traceList.querySelectorAll('input[type="checkbox"][data-trace-id]').forEach(function (input) {
+            input.checked = false;
+        });
+        this.applyTraceHighlight();
+    };
+
+    GitReaderApp.prototype.renderTracePanel = function (symbol) {
+        if (!symbol) {
+            this.traceList.innerHTML = '<p class="canvas-traces__empty">Select a node to compute call traces.</p>';
+            return;
+        }
+        if (this.tracePaths.length === 0) {
+            this.traceList.innerHTML = '\n                <p class="canvas-traces__empty">\n                    No call traces found for ' + escapeHtml(symbol.name) + '.\n                </p>\n            ';
+            return;
+        }
+        var info = this.tracePaths.length >= this.maxTracePaths
+            ? '<div class="canvas-trace-meta">Showing first ' + this.maxTracePaths + ' paths.</div>'
+            : '';
+        var items = this.tracePaths
+            .map(function (path, index) {
+            var checked = this.selectedTraceIds.has(path.id) ? 'checked' : '';
+            return '\n                    <label class="canvas-trace-item">\n                        <input type="checkbox" data-trace-id="' + path.id + '" value="' + path.id + '" ' + checked + '>\n                        <span>\n                            <div class="canvas-trace-label">Path ' + (index + 1) + '</div>\n                            <div class="canvas-trace-meta">' + escapeHtml(path.label) + '</div>\n                        </span>\n                    </label>\n                ';
+        }.bind(this))
+            .join('');
+        this.traceList.innerHTML = '' + info + items;
+    };
+
+    GitReaderApp.prototype.buildCallTracePaths = function (targetId) {
+        var _this = this;
+        var incomingCalls = new Map();
+        this.graphEdges.forEach(function (edge, index) {
+            if (edge.kind !== 'calls') {
+                return;
+            }
+            var edgeId = _this.buildEdgeId(edge, index);
+            var list = incomingCalls.get(edge.target) || [];
+            list.push({ from: edge.source, edgeId: edgeId });
+            incomingCalls.set(edge.target, list);
+        });
+        var paths = [];
+        var nodeStack = [targetId];
+        var edgeStack = [];
+        var visited = new Set([targetId]);
+        var walk = function (nodeId, depth) {
+            if (paths.length >= _this.maxTracePaths) {
+                return;
+            }
+            var incoming = incomingCalls.get(nodeId) || [];
+            if (incoming.length === 0 || depth >= _this.maxTraceDepth) {
+                var nodes = new Set(nodeStack);
+                var edges = new Set(edgeStack);
+                var label = _this.formatTraceLabel(nodeStack.slice().reverse());
+                paths.push({
+                    id: 'trace-' + (paths.length + 1),
+                    label: label,
+                    nodes: nodes,
+                    edges: edges
+                });
+                return;
+            }
+            incoming.forEach(function (link) {
+                if (paths.length >= _this.maxTracePaths) {
+                    return;
+                }
+                if (visited.has(link.from)) {
+                    return;
+                }
+                visited.add(link.from);
+                nodeStack.push(link.from);
+                edgeStack.push(link.edgeId);
+                walk(link.from, depth + 1);
+                edgeStack.pop();
+                nodeStack.pop();
+                visited.delete(link.from);
+            });
+        };
+        walk(targetId, 0);
+        return paths;
+    };
+
+    GitReaderApp.prototype.formatTraceLabel = function (nodeIds) {
+        var _this = this;
+        var names = nodeIds.map(function (nodeId) {
+            var _a;
+            return ((_a = _this.nodeById.get(nodeId)) === null || _a === void 0 ? void 0 : _a.name) || nodeId;
+        });
+        return names.join(' → ');
+    };
+
+    GitReaderApp.prototype.applyTraceHighlight = function () {
+        if (!this.graphInstance) {
+            return;
+        }
+        var cy = this.graphInstance;
+        if (this.selectedTraceIds.size === 0 || this.tracePaths.length === 0) {
+            cy.nodes().forEach(function (node) { return node.data('trace_dimmed', 'false'); });
+            cy.edges().forEach(function (edge) { return edge.data('trace_dimmed', 'false'); });
+            return;
+        }
+        var highlightedNodes = new Set();
+        var highlightedEdges = new Set();
+        this.tracePaths.forEach(function (path) {
+            if (!this.selectedTraceIds.has(path.id)) {
+                return;
+            }
+            path.nodes.forEach(function (nodeId) { return highlightedNodes.add(nodeId); });
+            path.edges.forEach(function (edgeId) { return highlightedEdges.add(edgeId); });
+        }.bind(this));
+        cy.nodes().forEach(function (node) {
+            var dimmed = highlightedNodes.has(node.id()) ? 'false' : 'true';
+            node.data('trace_dimmed', dimmed);
+        });
+        cy.edges().forEach(function (edge) {
+            var edgeId = edge.data('id');
+            var dimmed = highlightedEdges.has(edgeId) ? 'false' : 'true';
+            edge.data('trace_dimmed', dimmed);
+        });
     };
 
     GitReaderApp.prototype.focusOnSelected = function () {

@@ -34,6 +34,13 @@ interface GraphEdge {
     confidence: EdgeConfidence;
 }
 
+interface TracePath {
+    id: string;
+    label: string;
+    nodes: Set<string>;
+    edges: Set<string>;
+}
+
 interface ChapterSummary {
     id: string;
     title: string;
@@ -120,6 +127,7 @@ class GitReaderApp {
     private codeSurface: HTMLElement;
     private canvasGraph: HTMLElement;
     private canvasOverlay: HTMLElement;
+    private traceList: HTMLElement;
     private narratorOutput: HTMLElement;
     private modeButtons: NodeListOf<HTMLButtonElement>;
     private layoutButtons: NodeListOf<HTMLButtonElement>;
@@ -152,14 +160,19 @@ class GitReaderApp {
     private edgeFilters: Set<EdgeKind> = new Set(['calls', 'imports', 'inherits', 'contains', 'blueprint']);
     private showExternalNodes = true;
     private focusedNodeId: string | null = null;
+    private tracePaths: TracePath[] = [];
+    private selectedTraceIds: Set<string> = new Set();
     private currentSymbol: SymbolNode | null = null;
     private currentSnippetText = '';
+    private readonly maxTraceDepth = 8;
+    private readonly maxTracePaths = 10;
 
     constructor() {
         this.tocList = this.getElement('toc-list');
         this.codeSurface = this.getElement('code-surface');
         this.canvasGraph = this.getElement('canvas-graph');
         this.canvasOverlay = this.getElement('canvas-overlay');
+        this.traceList = this.getElement('canvas-trace-list');
         this.narratorOutput = this.getElement('narrator-output');
         this.modeButtons = document.querySelectorAll<HTMLButtonElement>('.mode-btn');
         this.layoutButtons = document.querySelectorAll<HTMLButtonElement>('.nav-btn[data-layout]');
@@ -295,6 +308,8 @@ class GitReaderApp {
                     this.focusOnSelected();
                 } else if (action === 'reset') {
                     this.resetGraphFocus();
+                } else if (action === 'clear-traces') {
+                    this.clearTraceSelection();
                 }
             });
         });
@@ -343,6 +358,20 @@ class GitReaderApp {
                 event.preventDefault();
                 this.jumpToInputLine();
             }
+        });
+
+        this.traceList.addEventListener('change', (event) => {
+            const target = event.target as HTMLInputElement;
+            if (!target || target.type !== 'checkbox') {
+                return;
+            }
+            const traceId = target.value;
+            if (target.checked) {
+                this.selectedTraceIds.add(traceId);
+            } else {
+                this.selectedTraceIds.delete(traceId);
+            }
+            this.applyTraceHighlight();
         });
     }
 
@@ -775,6 +804,7 @@ class GitReaderApp {
         const elements = this.buildGraphElements(nodes, edges);
         this.graphInstance.elements().remove();
         this.graphInstance.add(elements);
+        this.resetTracePanel();
         this.runGraphLayout();
         this.applyGraphFilters();
     }
@@ -812,6 +842,7 @@ class GitReaderApp {
                 return;
             }
             if (this.handleFileFocusClick(node, event.originalEvent)) {
+                this.updateCallTraces(node);
                 return;
             }
             event.target.select();
@@ -819,6 +850,7 @@ class GitReaderApp {
                 this.renderCode(node);
                 void this.updateNarrator(node);
             });
+            this.updateCallTraces(node);
         });
         this.graphEventsBound = true;
     }
@@ -834,7 +866,7 @@ class GitReaderApp {
         }));
         const edgeElements = edges.map((edge, index) => ({
             data: {
-                id: `edge:${edge.source}:${edge.target}:${edge.kind}:${index}`,
+                id: this.buildEdgeId(edge, index),
                 source: edge.source,
                 target: edge.target,
                 kind: edge.kind,
@@ -842,6 +874,10 @@ class GitReaderApp {
             },
         }));
         return [...nodeElements, ...edgeElements];
+    }
+
+    private buildEdgeId(edge: GraphEdge, index: number): string {
+        return `edge:${edge.source}:${edge.target}:${edge.kind}:${index}`;
     }
 
     private getGraphStyles(): Array<Record<string, object>> {
@@ -901,6 +937,13 @@ class GitReaderApp {
                 },
             },
             {
+                selector: 'node[trace_dimmed = "true"]',
+                style: {
+                    'opacity': 0.15,
+                    'text-opacity': 0.15,
+                },
+            },
+            {
                 selector: 'edge',
                 style: {
                     'line-color': '#bcae9c',
@@ -909,6 +952,12 @@ class GitReaderApp {
                     'target-arrow-shape': 'triangle',
                     'target-arrow-color': '#bcae9c',
                     'opacity': 0.7,
+                },
+            },
+            {
+                selector: 'edge[trace_dimmed = "true"]',
+                style: {
+                    'opacity': 0.1,
                 },
             },
             {
@@ -1251,6 +1300,155 @@ class GitReaderApp {
             }
         });
         this.applyFocus();
+        this.applyTraceHighlight();
+    }
+
+    private updateCallTraces(symbol: SymbolNode): void {
+        this.tracePaths = this.buildCallTracePaths(symbol.id);
+        this.selectedTraceIds.clear();
+        if (this.tracePaths.length > 0) {
+            this.selectedTraceIds.add(this.tracePaths[0].id);
+        }
+        this.renderTracePanel(symbol);
+        this.applyTraceHighlight();
+    }
+
+    private resetTracePanel(): void {
+        this.tracePaths = [];
+        this.selectedTraceIds.clear();
+        this.renderTracePanel();
+        this.applyTraceHighlight();
+    }
+
+    private clearTraceSelection(): void {
+        this.selectedTraceIds.clear();
+        this.traceList.querySelectorAll<HTMLInputElement>('input[type="checkbox"][data-trace-id]')
+            .forEach((input) => {
+                input.checked = false;
+            });
+        this.applyTraceHighlight();
+    }
+
+    private renderTracePanel(symbol?: SymbolNode): void {
+        if (!symbol) {
+            this.traceList.innerHTML = '<p class="canvas-traces__empty">Select a node to compute call traces.</p>';
+            return;
+        }
+        if (this.tracePaths.length === 0) {
+            this.traceList.innerHTML = `
+                <p class="canvas-traces__empty">
+                    No call traces found for ${this.escapeHtml(symbol.name)}.
+                </p>
+            `;
+            return;
+        }
+        const info = this.tracePaths.length >= this.maxTracePaths
+            ? `<div class="canvas-trace-meta">Showing first ${this.maxTracePaths} paths.</div>`
+            : '';
+        const items = this.tracePaths
+            .map((path, index) => {
+                const checked = this.selectedTraceIds.has(path.id) ? 'checked' : '';
+                return `
+                    <label class="canvas-trace-item">
+                        <input type="checkbox" data-trace-id="${path.id}" value="${path.id}" ${checked}>
+                        <span>
+                            <div class="canvas-trace-label">Path ${index + 1}</div>
+                            <div class="canvas-trace-meta">${this.escapeHtml(path.label)}</div>
+                        </span>
+                    </label>
+                `;
+            })
+            .join('');
+        this.traceList.innerHTML = `${info}${items}`;
+    }
+
+    private buildCallTracePaths(targetId: string): TracePath[] {
+        const incomingCalls = new Map<string, Array<{ from: string; edgeId: string }>>();
+        this.graphEdges.forEach((edge, index) => {
+            if (edge.kind !== 'calls') {
+                return;
+            }
+            const edgeId = this.buildEdgeId(edge, index);
+            const list = incomingCalls.get(edge.target) ?? [];
+            list.push({ from: edge.source, edgeId });
+            incomingCalls.set(edge.target, list);
+        });
+        const paths: TracePath[] = [];
+        const nodeStack: string[] = [targetId];
+        const edgeStack: string[] = [];
+        const visited = new Set<string>([targetId]);
+
+        const walk = (nodeId: string, depth: number): void => {
+            if (paths.length >= this.maxTracePaths) {
+                return;
+            }
+            const incoming = incomingCalls.get(nodeId) ?? [];
+            if (incoming.length === 0 || depth >= this.maxTraceDepth) {
+                const nodes = new Set(nodeStack);
+                const edges = new Set(edgeStack);
+                const label = this.formatTraceLabel([...nodeStack].reverse());
+                paths.push({
+                    id: `trace-${paths.length + 1}`,
+                    label,
+                    nodes,
+                    edges,
+                });
+                return;
+            }
+            incoming.forEach((link) => {
+                if (paths.length >= this.maxTracePaths) {
+                    return;
+                }
+                if (visited.has(link.from)) {
+                    return;
+                }
+                visited.add(link.from);
+                nodeStack.push(link.from);
+                edgeStack.push(link.edgeId);
+                walk(link.from, depth + 1);
+                edgeStack.pop();
+                nodeStack.pop();
+                visited.delete(link.from);
+            });
+        };
+
+        walk(targetId, 0);
+        return paths;
+    }
+
+    private formatTraceLabel(nodeIds: string[]): string {
+        const names = nodeIds.map((nodeId) => this.nodeById.get(nodeId)?.name ?? nodeId);
+        return names.join(' → ');
+    }
+
+    private applyTraceHighlight(): void {
+        if (!this.graphInstance) {
+            return;
+        }
+        const cy = this.graphInstance;
+        if (this.selectedTraceIds.size === 0 || this.tracePaths.length === 0) {
+            cy.nodes().forEach((node: any) => node.data('trace_dimmed', 'false'));
+            cy.edges().forEach((edge: any) => edge.data('trace_dimmed', 'false'));
+            return;
+        }
+        const highlightedNodes = new Set<string>();
+        const highlightedEdges = new Set<string>();
+        this.tracePaths.forEach((path) => {
+            if (!this.selectedTraceIds.has(path.id)) {
+                return;
+            }
+            path.nodes.forEach((nodeId) => highlightedNodes.add(nodeId));
+            path.edges.forEach((edgeId) => highlightedEdges.add(edgeId));
+        });
+        cy.nodes().forEach((node: any) => {
+            const dimmed = highlightedNodes.has(node.id()) ? 'false' : 'true';
+            node.data('trace_dimmed', dimmed);
+        });
+        cy.edges().forEach((edge: any) => {
+            const edgeId = edge.data('id') as string;
+            const dimmed = highlightedEdges.has(edgeId) ? 'false' : 'true';
+            edge.data('trace_dimmed', dimmed);
+        });
     }
 
     private focusOnSelected(): void {
