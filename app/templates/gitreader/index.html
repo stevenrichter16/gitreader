@@ -77,6 +77,15 @@
           <button class="ghost-btn" data-graph-action="focus">Focus</button>
           <button class="ghost-btn" data-graph-action="reset">Reset</button>
         </div>
+        <div class="canvas-traces" id="canvas-traces" aria-label="Call trace paths">
+          <div class="canvas-traces__header">
+            <span class="canvas-label">Call traces</span>
+            <button class="ghost-btn" data-graph-action="clear-traces">Clear</button>
+          </div>
+          <div class="canvas-traces__body" id="canvas-trace-list">
+            <p class="canvas-traces__empty">Select a node to compute call traces.</p>
+          </div>
+        </div>
         <div class="canvas-legend" aria-label="Node legend">
           <span class="legend-item"><span class="legend-swatch legend-file"></span>File</span>
           <span class="legend-item"><span class="legend-swatch legend-class"></span>Class</span>
